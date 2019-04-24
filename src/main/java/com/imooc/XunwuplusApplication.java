@@ -15,7 +15,7 @@ public class XunwuplusApplication  extends SpringBootServletInitializer {
     }
 
 	public static void main(String[] args) {
-		
+		System.out.println("1");
 		
 		SpringApplication.run(XunwuplusApplication.class, args);
 	}
