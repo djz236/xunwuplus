@@ -23,43 +23,45 @@
  *      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      *
  *********__佛祖保佑__永无BUG__验收通过__钞票多多__*********
  *********************************************************/
-package com.imooc.base;
+package com.imooc.web.controller;
 
-/**   
- * @ClassName:  ApiDataTableResponse   
- * @Description:Datatables响应结构
- * @author: 公司名称 
- * @date:   2019年4月25日 下午3:45:17   
- *     
- * @Copyright: 2019 www.xxx.com Inc. All rights reserved. 
- * 注意：本内容仅限于公司内部传阅，禁止外泄以及用于其他的商业目 
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+/**
+ * @ClassName: HomeController
+ * @Description:TODO(这里用一句话描述这个类的作用)
+ * @author: 公司名称
+ * @date: 2019年4月25日 下午9:41:28
+ * 
+ * @Copyright: 2019 www.xxx.com Inc. All rights reserved.
+ *             注意：本内容仅限于公司内部传阅，禁止外泄以及用于其他的商业目
  */
-public class ApiDataTableResponse extends ApiResponse{
-	private int draw;
-	private long recordsTotal;
-	private long recordsFiltered;
-	public int getDraw() {
-		return draw;
+@Controller
+public class HomeController {
+	@GetMapping(value = { "/", "/index" })
+	public String index() {
+		return "index";
 	}
-	public void setDraw(int draw) {
-		this.draw = draw;
+
+	@GetMapping("/404")
+	public String notFoundPage() {
+		return "/404";
 	}
-	public long getRecordsTotal() {
-		return recordsTotal;
+
+	@GetMapping("/403")
+	public String accessError() {
+		return "/403";
 	}
-	public void setRecordsTotal(long recordsTotal) {
-		this.recordsTotal = recordsTotal;
+
+	@GetMapping("/500")
+	public String internalError() {
+		return "/500";
 	}
-	public long getRecordsFiltered() {
-		return recordsFiltered;
+
+	@GetMapping("/logout/page")
+	public String logoutPage() {
+		return "/logout";
 	}
-	public void setRecordsFiltered(long recordsFiltered) {
-		this.recordsFiltered = recordsFiltered;
-	}
-	public ApiDataTableResponse(ApiResponse.Status status) {
-		this(status.getCode(),status.getStandardMessage(),null);
-	}
-	public ApiDataTableResponse(int code, String message, Object data) {
-		super(code, message, data);
-	}
+	
 }

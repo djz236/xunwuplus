@@ -23,43 +23,38 @@
  *      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      *
  *********__佛祖保佑__永无BUG__验收通过__钞票多多__*********
  *********************************************************/
-package com.imooc.base;
+package com.imooc.web.controller.admin;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 
 /**   
- * @ClassName:  ApiDataTableResponse   
- * @Description:Datatables响应结构
+ * @ClassName:  AdminController   
+ * @Description:TODO(这里用一句话描述这个类的作用)   
  * @author: 公司名称 
- * @date:   2019年4月25日 下午3:45:17   
+ * @date:   2019年4月26日 下午9:43:32   
  *     
  * @Copyright: 2019 www.xxx.com Inc. All rights reserved. 
  * 注意：本内容仅限于公司内部传阅，禁止外泄以及用于其他的商业目 
  */
-public class ApiDataTableResponse extends ApiResponse{
-	private int draw;
-	private long recordsTotal;
-	private long recordsFiltered;
-	public int getDraw() {
-		return draw;
+@Controller
+public class AdminController {
+
+	@GetMapping("/admin/center")
+	public String adminCenterPage(){
+		return "admin/center";
 	}
-	public void setDraw(int draw) {
-		this.draw = draw;
-	}
-	public long getRecordsTotal() {
-		return recordsTotal;
-	}
-	public void setRecordsTotal(long recordsTotal) {
-		this.recordsTotal = recordsTotal;
-	}
-	public long getRecordsFiltered() {
-		return recordsFiltered;
-	}
-	public void setRecordsFiltered(long recordsFiltered) {
-		this.recordsFiltered = recordsFiltered;
-	}
-	public ApiDataTableResponse(ApiResponse.Status status) {
-		this(status.getCode(),status.getStandardMessage(),null);
-	}
-	public ApiDataTableResponse(int code, String message, Object data) {
-		super(code, message, data);
+	
+	/**
+     * 欢迎页
+     * @return
+     */
+    @GetMapping("/admin/welcome")
+    public String welcomePage() {
+        return "admin/welcome";
+    }
+	@GetMapping("/admin/login")
+	public String adminLoginPage(){
+		return "admin/login";
 	}
 }
