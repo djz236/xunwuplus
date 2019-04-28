@@ -25,8 +25,12 @@
  *********************************************************/
 package com.imooc.web.controller.admin;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,6 +42,7 @@ import com.imooc.service.ServiceMultiResult;
 import com.imooc.service.house.IHouseService;
 import com.imooc.web.dto.HouseDTO;
 import com.imooc.web.form.DatatableSearch;
+import com.imooc.web.form.HouseForm;
 
 /**   
  * @ClassName:  AdminController   
@@ -90,6 +95,38 @@ public class AdminController {
 		response.setDraw(searchBody.getDraw());
 		return response;
 	}
-	
+/*	  if (bindingResult.hasErrors()) {
+          return new ApiResponse(HttpStatus.BAD_REQUEST.value(), bindingResult.getAllErrors().get(0).getDefaultMessage(), null);
+      }
+      Map<SupportAddress.Level, SupportAddressDTO> addressMap = addressService.findCityAndRegion(houseForm.getCityEnName(), houseForm.getRegionEnName());
+      if (addressMap.keySet().size() != 2) {
+          return ApiResponse.ofSuccess(ApiResponse.Status.NOT_VALID_PARAM);
+      }
+      ServiceResult result = houseService.update(houseForm);
+      if (result.isSuccess()) {
+          return ApiResponse.ofSuccess(null);
+      }
+      ApiResponse response = ApiResponse.ofStatus(ApiResponse.Status.BAD_REQUEST);
+      response.setMessage(result.getMessage());
+      return response;*/
+		/**   
+	 * @Title: saveHouse   
+	 * @Description:编辑接口   
+	 * @param: @param houseForm
+	 * @param: @param bindingResult
+	 * @param: @return      
+	 * @return: ApiResponse      
+	 * @throws   
+	 */
+	@PostMapping("admin/house/edit")
+	@ResponseBody
+	public ApiResponse saveHouse (@Valid @ModelAttribute("form-house-edit") HouseForm houseForm, BindingResult bindingResult){
+		if(bindingResult.hasErrors()){
+			return new ApiResponse(HttpStatus.BAD_REQUEST.value(),bindingResult.getAllErrors().get(0).getDefaultMessage(),null);
+		}
+		address
+		
+		return null;
+	}
 	
 }
