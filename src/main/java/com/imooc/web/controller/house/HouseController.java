@@ -23,73 +23,20 @@
  *      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      *
  *********__佛祖保佑__永无BUG__验收通过__钞票多多__*********
  *********************************************************/
-package com.imooc.web.controller.admin;
+package com.imooc.web.controller.house;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.imooc.base.ApiDataTableResponse;
-import com.imooc.base.ApiResponse;
-import com.imooc.service.ServiceMultiResult;
-import com.imooc.service.house.IHouseService;
-import com.imooc.web.dto.HouseDTO;
-import com.imooc.web.form.DatatableSearch;
 
 /**   
- * @ClassName:  AdminController   
+ * @ClassName:  HouseController   
  * @Description:TODO(这里用一句话描述这个类的作用)   
  * @author: 公司名称 
- * @date:   2019年4月26日 下午9:43:32   
+ * @date:   2019年4月27日 下午4:10:04   
  *     
  * @Copyright: 2019 www.xxx.com Inc. All rights reserved. 
  * 注意：本内容仅限于公司内部传阅，禁止外泄以及用于其他的商业目 
  */
 @Controller
-public class AdminController {
+public class HouseController {
 
-	@Autowired
-	private IHouseService houseService;
-	@GetMapping("/admin/center")
-	public String adminCenterPage(){
-		return "admin/center";
-	}
-	
-	/**
-     * 欢迎页
-     * @return
-     */
-    @GetMapping("/admin/welcome")
-    public String welcomePage() {
-        return "admin/welcome";
-    }
-	@GetMapping("/admin/login")
-	public String adminLoginPage(){
-		return "admin/login";
-	}
-	/**
-     * 房源列表页
-     * @return
-     */
-	@GetMapping("admin/house/list")
-	public String houseListPage(){
-		return "admin/house-list";
-		
-	}
-	@PostMapping("admin/houses")
-    @ResponseBody
-	public ApiDataTableResponse house(@ModelAttribute DatatableSearch searchBody){
-		ServiceMultiResult<HouseDTO> result = houseService.adminQuery(searchBody);
-		ApiDataTableResponse response = new ApiDataTableResponse(ApiResponse.Status.SUCCESS);
-		response.setData(result.getResult());
-		response.setRecordsFiltered(result.getTotal());
-		response.setRecordsTotal(result.getTotal());
-		response.setDraw(searchBody.getDraw());
-		return response;
-	}
-	
-	
 }

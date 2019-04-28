@@ -34,6 +34,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 import com.imooc.security.AuthProvider;
+import com.imooc.security.LoginAuthFailHandler;
+import com.imooc.security.LoginUrlEntryPoint;
 
 /**
  * @ClassName: WebSecurityConfig
@@ -61,8 +63,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.hasAnyRole("ADMIN", "USER")
 				.and().formLogin()
 				.loginProcessingUrl("/login") // 配置角色登录处理入口
-//				.failureHandler(authFailHandler())// 登陆失败的相应
-				.and();
+				.failureHandler(authFailHandler())// 登陆失败的相应
+				.and()
+				.logout()
+				.logoutUrl("/logout")
+				.logoutSuccessUrl("/logout/page")
+				.deleteCookies("JSESSIONID")
+				.invalidateHttpSession(true)
+				.and()
+				.exceptionHandling()
+				.authenticationEntryPoint(urlEntryPoint())
+				.accessDeniedPage("/403")
+				
+				;
 		 http.csrf().disable();
 	        http.headers().frameOptions().sameOrigin();
 	}
@@ -79,16 +92,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   //  auth.inMemoryAuthentication().withUser("admin").password("admin").roles("ADMIN").and();//内存中配置的登陆用户信息
     	auth.authenticationProvider( authProvider()).eraseCredentials(true);
     }
-	/*@Autowired
-	public void configCloable(AuthenticationManagerBuilder builder)
-			throws Exception {
-		builder.inMemoryAuthentication().withUser("admin").password("admin")
-				.roles("ADMIN").and();
-		// builder.authenticationProvider().er
-	}*/
- 
+	 
     @Bean
     public AuthProvider authProvider(){
     	return new AuthProvider();
     }
+    @Bean
+    public LoginUrlEntryPoint urlEntryPoint(){
+    	return new LoginUrlEntryPoint("/user/login");
+    }
+    @Bean
+    public LoginAuthFailHandler  authFailHandler(){
+    	return new LoginAuthFailHandler(urlEntryPoint());
+    } 
 }
