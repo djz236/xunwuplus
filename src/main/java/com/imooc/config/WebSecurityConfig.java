@@ -74,7 +74,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.exceptionHandling()
 				.authenticationEntryPoint(urlEntryPoint())
 				.accessDeniedPage("/403")
-				
 				;
 		 http.csrf().disable();
 	        http.headers().frameOptions().sameOrigin();

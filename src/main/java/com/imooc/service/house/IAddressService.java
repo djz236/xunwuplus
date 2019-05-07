@@ -28,6 +28,9 @@ package com.imooc.service.house;
 import java.util.Map;
 
 import com.imooc.entity.SupportAddress;
+import com.imooc.service.ServiceResult;
+import com.imooc.web.dto.SubwayDTO;
+import com.imooc.web.dto.SubwayStationDTO;
 import com.imooc.web.dto.SupportAddressDTO;
 
 /**   
@@ -49,5 +52,17 @@ public interface IAddressService {
 	 * @return: Map<>      
 	 * @throws   
 	 */
-	Map<SupportAddress.Level,SupportAddressDTO> findCityAndRegion();
+	Map<SupportAddress.Level,SupportAddressDTO> findCityAndRegion(String cityEnName, String regionEnName);
+	
+	ServiceResult<SubwayDTO> findSubway(Integer subwayId);
+ 
+	  /**
+     * 获取地铁站点信息
+     * @param stationId
+     * @return
+     */
+    ServiceResult<SubwayStationDTO> findSubwayStation(Integer stationId);
+
+	
+	
 }

@@ -49,9 +49,9 @@ public class HouseDetailDTO {
 
 	    private String address;
 
-	    private Long subwayLineId;
+	    private int subwayLineId;
 
-	    private Long subwayStationId;
+	    private int subwayStationId;
 
 	    private String subwayLineName;
 
@@ -113,19 +113,19 @@ public class HouseDetailDTO {
 			this.address = address;
 		}
 
-		public Long getSubwayLineId() {
+		public int getSubwayLineId() {
 			return subwayLineId;
 		}
 
-		public void setSubwayLineId(Long subwayLineId) {
+		public void setSubwayLineId(int subwayLineId) {
 			this.subwayLineId = subwayLineId;
 		}
 
-		public Long getSubwayStationId() {
+		public int getSubwayStationId() {
 			return subwayStationId;
 		}
 
-		public void setSubwayStationId(Long subwayStationId) {
+		public void setSubwayStationId(int subwayStationId) {
 			this.subwayStationId = subwayStationId;
 		}
 

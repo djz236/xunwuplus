@@ -48,8 +48,7 @@ import javax.persistence.Table;
 public class House {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Long id;
-	
+	private int id;
 	private String title;
 	@Column(name="admin_id")
 	private Long adminId;
@@ -78,10 +77,10 @@ public class House {
 	private String cover;
 	@Column(name="distance_to_subway")
 	private int distanceToSubway;
-	public Long getId() {
+	public int getId() {
 		return id;
 	}
-	public void setId(Long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 	public String getTitle() {

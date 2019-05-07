@@ -15,7 +15,7 @@ import javax.persistence.Table;
 public class SupportAddress {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private int id;
 
 	// 上一级行政单位
 	@Column(name = "belong_to")
@@ -35,11 +35,11 @@ public class SupportAddress {
 	@Column(name = "baidu_map_lat")
 	private double baiduMapLatitude;
 
-	public Long getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
