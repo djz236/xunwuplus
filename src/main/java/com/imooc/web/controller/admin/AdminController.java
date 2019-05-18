@@ -31,7 +31,6 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
-import org.apache.kafka.common.protocol.ApiKeys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -41,7 +40,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
@@ -50,6 +51,8 @@ import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.imooc.base.ApiDataTableResponse;
 import com.imooc.base.ApiResponse;
+import com.imooc.base.HouseOperation;
+import com.imooc.base.HouseStatus;
 import com.imooc.entity.SupportAddress;
 import com.imooc.entity.SupportAddress.Level;
 import com.imooc.service.ServiceMultiResult;
@@ -90,6 +93,50 @@ public class AdminController {
 
 	@Autowired
 	private Gson gson;
+	
+	
+//	/admin/house/operate
+	/**   
+	 * @Title: operateHouse   
+	 * @Description: 审核接口   
+	 * @param: @return      
+	 * @return: ApiResponse      
+	 * @throws   
+	 */
+	@PutMapping("/admin/house/operate/{id}/{operation}")
+	@ResponseBody
+	public ApiResponse operateHouse(
+			@PathVariable(value="id") int id,
+			@PathVariable(value="operation") int operation){
+		if(id<=0){
+			return ApiResponse.ofStatus(ApiResponse.Status.NOT_VALID_PARAM);
+		}
+		ServiceResult result;
+		switch (operation) {
+		case HouseOperation.PASS:
+			result=houseService.updateStatus(id, HouseStatus.PASSES.getValue());
+			break;
+		case HouseOperation.PULL_OUT:
+			result=houseService.updateStatus(id, HouseStatus.NOT_AUDITED.getValue());
+			break;
+		case HouseOperation.DELETE:
+			result=houseService.updateStatus(id, HouseStatus.DELETED.getValue());
+			break;
+		case HouseOperation.RENT:
+			result=houseService.updateStatus(id, HouseStatus.RENTED.getValue());
+			break;
+		default:
+			return ApiResponse.ofStatus(ApiResponse.Status.BAD_REQUEST) ;
+		}
+	if(result.isSuccess()){
+		return ApiResponse.ofSucess(null);
+	}	
+	
+		return ApiResponse.ofMessage(HttpStatus.BAD_REQUEST.value(), 
+				result.getMessage());
+	}
+	
+	
 	@GetMapping("/admin/center")
 	public String adminCenterPage() {
 		return "admin/center";
@@ -110,6 +157,53 @@ public class AdminController {
 		return "admin/login";
 	}
 
+	/**   
+	 * @Title: addHousePage   
+	 * @Description: 新增房源功能列表   
+	 * @param: @return      
+	 * @return: String      
+	 * @throws   
+	 */
+	@GetMapping("admin/add/house")
+	public String addHousePage(){
+		return "admin/house-add";
+	}
+	/**   
+	 * @Title: addHouse   
+	 * @Description: 新增房源接口   
+	 * @param: @param houseForm
+	 * @param: @param bindingResult
+	 * @param: @return      
+	 * @return: ApiResponse      
+	 * @throws   
+	 */
+	@PostMapping("admin/add/house")
+	@ResponseBody
+	public ApiResponse addHouse(
+			@Valid @ModelAttribute("form-house-add")HouseForm houseForm,
+			BindingResult bindingResult){
+		
+		if(bindingResult.hasErrors()){
+			return new ApiResponse(
+					HttpStatus.BAD_REQUEST.value(),
+					bindingResult.getAllErrors().get(0).getDefaultMessage(),null);
+		}
+		if(houseForm.getPhotos()==null||houseForm.getCover()==null){
+			return ApiResponse.ofMessage(HttpStatus.BAD_REQUEST.value(), 
+					"必须上传图片");
+		}
+		Map<Level, SupportAddressDTO> addressMap = addressService.findCityAndRegion(houseForm.getCityEnName(),
+				houseForm.getRegionEnName());
+		if(addressMap.keySet().size()!=2){
+			return ApiResponse.ofStatus(ApiResponse.Status.NOT_VALID_PARAM);
+		}
+		ServiceResult<HouseDTO> result = houseService.save(houseForm);
+		if(result.isSuccess()){
+			return ApiResponse.ofSucess(result.getResult());
+		}
+		
+		return ApiResponse.ofSucess(ApiResponse.Status.NOT_VALID_PARAM);
+	}
 	/**
 	 * 房源列表页
 	 * 
@@ -135,7 +229,27 @@ public class AdminController {
 		response.setDraw(searchBody.getDraw());
 		return response;
 	}
-
+	///admin/house/show
+	@GetMapping("admin/house/show")
+	public String houseShowPage(@RequestParam(value="id") int id,
+			Model model){
+		
+		if(id==0||id<1){
+			return "404";
+		}
+		
+		ServiceResult<HouseDTO> serviceResult = houseService.findCompleteOne(id);
+		if(!serviceResult.isSuccess()){
+			return "404";
+		}
+		HouseDTO result = serviceResult.getResult();
+		
+		model.addAttribute("house",result);
+		
+		
+		return "admin/house-show";
+	}
+	
 	/**
 	 * @Title: houseEditPage @Description: 房源信息编辑页 @param: @param
 	 * id @param: @param model @param: @return @return: String @throws
@@ -259,10 +373,15 @@ public class AdminController {
 	@DeleteMapping("/admin/house/photo")
 	@ResponseBody
 	public ApiResponse removeHousePhoto(
-			@RequestParam(value="id") int houseId){
+			@RequestParam(value="id") int id){
 		 
-//		houseService.remove
-		return null;
+ 		ServiceResult result = houseService.removePhoto(id);
+ 		if(result.isSuccess()){
+ 			return ApiResponse.ofStatus(ApiResponse.Status.SUCCESS);
+ 		}else{
+ 			return ApiResponse.ofMessage(HttpStatus.BAD_REQUEST.value(),
+ 					result.getMessage());
+ 		}
 	}
 	
 	/**   
@@ -303,6 +422,30 @@ public class AdminController {
 			}
 		}catch (IOException e) {
 			return ApiResponse.ofStatus(ApiResponse.Status.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+//	/admin/house/cover
+	/**   
+	 * @Title: updateCover   
+	 * @Description: 修改封面接口   
+	 * @param: @param coverId
+	 * @param: @param targetId
+	 * @param: @return      
+	 * @return: ApiResponse      
+	 * @throws   
+	 */
+	@PostMapping("/admin/house/cover")
+	@ResponseBody
+	public ApiResponse updateCover(
+			@RequestParam("cover_id")int coverId,
+			@RequestParam("target_id")int targetId
+			){
+		ServiceResult result = houseService.updateCover(coverId, targetId);
+		if(result.isSuccess()){
+			return ApiResponse.ofStatus(ApiResponse.Status.SUCCESS);
+		}else{
+			return ApiResponse.ofMessage(HttpStatus.BAD_REQUEST.value(),result.getMessage());
 		}
 	}
 	

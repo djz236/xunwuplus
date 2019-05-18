@@ -7,9 +7,9 @@ $(function () {
         $subwayLine = $("#subwayLine"),
         $subwayStation = $("#subwayStation");
 
-    // $city.on('change', function () {
-    //     changeCity($city);
-    // });
+   //   $city.on('change', function () {
+   //       changeCity($city);
+   // });
 
     var selectedVal = $city.val();
     changeRegion($region, selectedVal);

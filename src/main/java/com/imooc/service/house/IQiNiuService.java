@@ -23,34 +23,26 @@
  *      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      *
  *********__佛祖保佑__永无BUG__验收通过__钞票多多__*********
  *********************************************************/
-package com.imooc.repository;
+package com.imooc.service.house;
 
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.data.repository.query.Param;
+import java.io.File;
+import java.io.InputStream;
 
-import com.imooc.entity.House;
+import com.qiniu.common.QiniuException;
+import com.qiniu.http.Response;
 
 /**   
- * @ClassName:  HouseRepository   
- * @Description:TODO(这里用一句话描述这个类的作用)   
+ * @ClassName:  IQiNiuService   
+ * @Description:七牛云服务   
  * @author: 公司名称 
- * @date:   2019年4月27日 下午6:22:47   
+ * @date:   2019年5月7日 上午11:08:19   
  *     
  * @Copyright: 2019 www.xxx.com Inc. All rights reserved. 
  * 注意：本内容仅限于公司内部传阅，禁止外泄以及用于其他的商业目 
  */
-public interface HouseRepository extends PagingAndSortingRepository<House, Integer>, JpaSpecificationExecutor<House> {
+public interface IQiNiuService {
 
-	@Modifying
-	@Query("update House as house set house.cover=:cover where house.id=:id")
-	void updateCover(@Param(value="id") int id,@Param(value="cover")String cover);
-	
-	@Modifying
-	@Query("update House as house set house.status=:status where house.id=:id")
-	void updateStatus (@Param(value="id") int id,
-			@Param(value="status") int status);
-	
+	Response uploadFile(File file)  throws QiniuException;
+	Response uploadFile(InputStream inputStream)  throws QiniuException;
+	Response delete(String key)  throws QiniuException;
 }

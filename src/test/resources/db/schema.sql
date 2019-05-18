@@ -79,11 +79,57 @@ CREATE TABLE `house_detail` (
   `house_id` int(11) NOT NULL COMMENT '对应house的id',
   PRIMARY KEY (`id`)
 );
+/*Table structure for table `house_picture` */
+
+DROP TABLE IF EXISTS `house_picture`;
+
+CREATE TABLE `house_picture` (
+  `id` int(10)  NOT NULL IDENTITY,
+  `house_id` int(11) NOT NULL COMMENT '所属房屋id',
+  `cdn_prefix` varchar(255) NOT NULL COMMENT '图片路径',
+  `width` int(11) DEFAULT NULL COMMENT '宽',
+  `height` int(11) DEFAULT NULL COMMENT '高',
+  `location` varchar(32) DEFAULT NULL COMMENT '所属房屋位置',
+  `path` varchar(255) NOT NULL COMMENT '文件名',
+  PRIMARY KEY (`id`)
+);
+
+DROP TABLE IF EXISTS `house_subscribe`;
+CREATE TABLE `house_subscribe` (
+  `id` int(11)  NOT NULL  COMMENT 'house_subscribe唯一标识',
+  `house_id` int(11) NOT NULL COMMENT '房源id',
+  `user_id` int(11) NOT NULL COMMENT '用户id',
+  `yhms` varchar(255) DEFAULT NULL COMMENT '用户描述',
+  `status` int(2) NOT NULL DEFAULT '0' COMMENT '预约状态 1-加入待看清单 2-已预约看房时间 3-看房完成',
+  `create_time` datetime NOT NULL COMMENT '数据创建时间',
+  `last_update_time` datetime NOT NULL COMMENT '记录更新时间',
+  `order_time` datetime DEFAULT NULL COMMENT '预约时间',
+  `telephone` varchar(11) DEFAULT NULL COMMENT '联系电话',
+  `admin_id` int(11) NOT NULL COMMENT '房源发布者id',
+  PRIMARY KEY (`id`)
+);
 
 DROP TABLE IF EXISTS `house_tag`;
 CREATE TABLE `house_tag` (
   `house_id` int(11) NOT NULL COMMENT '房屋id',
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '标签id',
   `name` varchar(32) NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+DROP TABLE IF EXISTS `subway`;
+CREATE TABLE `subway` (
+  `id` int(11)  NOT NULL AUTO_INCREMENT,
+  `name` varchar(32) NOT NULL COMMENT '线路名',
+  `city_en_name` varchar(32) NOT NULL COMMENT '所属城市英文名缩写',
+  PRIMARY KEY (`id`)
+) ;
+
+DROP TABLE IF EXISTS `subway_station`;
+
+CREATE TABLE `subway_station` (
+  `id` int(11)  NOT NULL AUTO_INCREMENT,
+  `subway_id` int(11) NOT NULL COMMENT '所属地铁线id',
+  `name` varchar(32) NOT NULL COMMENT '站点名称',
   PRIMARY KEY (`id`)
 );

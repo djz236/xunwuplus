@@ -64,7 +64,8 @@ public class HouseForm {
 	private String street;
 
 	@NotNull(message = "必须填写小区")
-	private String distinct;
+	@Size(min = 1, max = 30, message = "标题长度必须在1-30之间")
+	private String district;
 
 	@NotNull(message = "详细地址不允许为空！")
 	@Size(min = 1, max = 30, message = "详细地址长度必须在1-30之间")
@@ -156,12 +157,14 @@ public class HouseForm {
 		this.street = street;
 	}
 
-	public String getDistinct() {
-		return distinct;
+	 
+
+	public String getDistrict() {
+		return district;
 	}
 
-	public void setDistinct(String distinct) {
-		this.distinct = distinct;
+	public void setDistrict(String district) {
+		this.district = district;
 	}
 
 	public String getDetailAddress() {

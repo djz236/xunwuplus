@@ -23,34 +23,23 @@
  *      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      *
  *********__佛祖保佑__永无BUG__验收通过__钞票多多__*********
  *********************************************************/
-package com.imooc.repository;
-
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.data.repository.query.Param;
-
-import com.imooc.entity.House;
+package com.imooc.base;
 
 /**   
- * @ClassName:  HouseRepository   
- * @Description:TODO(这里用一句话描述这个类的作用)   
+ * @ClassName:  HouseOperation   
+ * @Description:房屋操作状态常量定义
  * @author: 公司名称 
- * @date:   2019年4月27日 下午6:22:47   
+ * @date:   2019年5月10日 下午10:26:13   
  *     
  * @Copyright: 2019 www.xxx.com Inc. All rights reserved. 
  * 注意：本内容仅限于公司内部传阅，禁止外泄以及用于其他的商业目 
  */
-public interface HouseRepository extends PagingAndSortingRepository<House, Integer>, JpaSpecificationExecutor<House> {
+public class HouseOperation {
+    public static final int PASS = 1; // 通过审核
 
-	@Modifying
-	@Query("update House as house set house.cover=:cover where house.id=:id")
-	void updateCover(@Param(value="id") int id,@Param(value="cover")String cover);
-	
-	@Modifying
-	@Query("update House as house set house.status=:status where house.id=:id")
-	void updateStatus (@Param(value="id") int id,
-			@Param(value="status") int status);
-	
+    public static final int PULL_OUT = 2; // 下架。重新审核
+
+    public static final int DELETE = 3; // 逻辑删除
+
+    public static final int RENT = 4; // 出租
 }

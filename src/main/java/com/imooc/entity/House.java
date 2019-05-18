@@ -51,7 +51,7 @@ public class House {
 	private int id;
 	private String title;
 	@Column(name="admin_id")
-	private Long adminId;
+	private int adminId;
 	private int price;
 	private int area;
 	private int room;
@@ -62,6 +62,8 @@ public class House {
 	private int totalFloor;
 	@Column(name="watch_times")
 	private int watchTimes;
+    @Column(name = "build_year")
+    private int buildYear;
 	private int status;
 	@Column(name="create_time")
 	private Date createTime;
@@ -77,6 +79,13 @@ public class House {
 	private String cover;
 	@Column(name="distance_to_subway")
 	private int distanceToSubway;
+	
+	public int getBuildYear() {
+		return buildYear;
+	}
+	public void setBuildYear(int buildYear) {
+		this.buildYear = buildYear;
+	}
 	public int getId() {
 		return id;
 	}
@@ -89,10 +98,10 @@ public class House {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public Long getAdminId() {
+	public int getAdminId() {
 		return adminId;
 	}
-	public void setAdminId(Long adminId) {
+	public void setAdminId(int adminId) {
 		this.adminId = adminId;
 	}
 	public int getPrice() {

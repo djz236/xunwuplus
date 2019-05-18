@@ -67,6 +67,8 @@ import com.imooc.web.dto.HousePictureDTO;
 import com.imooc.web.form.DatatableSearch;
 import com.imooc.web.form.HouseForm;
 import com.imooc.web.form.PhotoForm;
+import com.qiniu.common.QiniuException;
+import com.qiniu.http.Response;
 
 /**
  * @ClassName: HouseService
@@ -97,6 +99,12 @@ public class HouseServiceImpl implements IHouseService {
 	private SubwayStationRepository subwayStationRepository;
 	@Autowired
 	private HouseSubscribeRespository subscribeRespository;
+	
+	@Autowired
+	private IQiNiuService qiNiuService;
+	
+	@Autowired
+	private ISearchService searchService;
 	/**
 	 * <p>
 	 * Title: adminQuery
@@ -168,6 +176,7 @@ public class HouseServiceImpl implements IHouseService {
 	 * @see com.imooc.service.house.IHouseService#update(com.imooc.web.form.HouseForm)   
 	 */
 	@Override
+	@Transactional
 	public ServiceResult update(HouseForm houseForm) {
 		House house = houseRepository.findOne(houseForm.getId());
 		if(house==null){
@@ -194,10 +203,10 @@ public class HouseServiceImpl implements IHouseService {
 		modelMapper.map(houseForm, house);
 		house.setLastUpdateTime(new Date());
 		houseRepository.save(house);
-		/*if(house.getStatus()==HouseStatus.PASSES.getValue()){
+		if(house.getStatus()==HouseStatus.PASSES.getValue()){
 			searchService.index(house.getId());
 		}
-		*/
+		 
 		return ServiceResult.success();
 	}
 
@@ -362,8 +371,129 @@ public class HouseServiceImpl implements IHouseService {
 	 */
 	@Override
 	public ServiceResult removePhoto(int id) {
-		// TODO Auto-generated method stub
-		return null;
+		HousePicture picture = housePictureRepository.findOne(id);
+		if(picture==null){
+			return ServiceResult.notFound();
+		}
+		try {
+			Response response = qiNiuService.delete(picture.getPath());
+			if(response.isOK()){
+				housePictureRepository.delete(id);
+				return ServiceResult.success();
+			}else{
+				return new ServiceResult(false,response.error);
+			}
+		} catch (QiniuException e) {
+			e.printStackTrace();
+			return new ServiceResult(false,e.getMessage());
+		}
 	}
+
+	/**   
+	 * <p>Title: updateCover</p>   
+	 * <p>Description: </p>   
+	 * @param coverId
+	 * @param targetId
+	 * @return   
+	 * @see com.imooc.service.house.IHouseService#updateCover(java.lang.Long, java.lang.Long)   
+	 */
+	@Override
+	@Transactional
+	public ServiceResult updateCover(int coverId, int targetId) {
+		HousePicture cover = housePictureRepository.findOne(coverId);
+		if(cover==null){
+			return ServiceResult.notFound();
+		}
+		houseRepository.updateCover(targetId, cover.getPath());
+		return ServiceResult.success();
+	}
+
+	/**   
+	 * <p>Title: save</p>   
+	 * <p>Description: </p>   
+	 * @param houseForm
+	 * @return   
+	 * @see com.imooc.service.house.IHouseService#save(com.imooc.web.form.HouseForm)   
+	 */
+	@Override
+	public ServiceResult<HouseDTO> save(HouseForm houseForm) {
+		HouseDetail detail = new HouseDetail();
+		 ServiceResult<HouseDTO> subwayValidtionResult =wrapperDetailInfo(detail,houseForm);
+		if(subwayValidtionResult!=null){
+			return subwayValidtionResult;
+		}
+		House house = new House();
+		modelMapper.map(houseForm, house);
+		Date now=new Date();
+		house.setCreateTime(now);
+		house.setLastUpdateTime(now);
+		house.setAdminId(LoginUserUtil.getLoginUserId());
+		house = houseRepository.save(house);
+		
+		detail.setHouseId(house.getId());
+		detail=houseDetailRepository.save(detail);
+		
+		List<HousePicture> pictures = generatePictures(houseForm, house.getId());
+		Iterable<HousePicture> housePictures = housePictureRepository.save(pictures);
+		HouseDTO houseDTO = modelMapper.map(house, HouseDTO.class);
+		
+		HouseDetailDTO houseDetailDTO = modelMapper.map(detail, HouseDetailDTO.class);
+		houseDTO.setHouseDetail(houseDetailDTO);
+		List<HousePictureDTO> pictureDTOS=new ArrayList<>();
+		
+		housePictures.forEach(housePicture->pictureDTOS.add(
+				modelMapper.map(housePicture,
+						HousePictureDTO.class)));
+		houseDTO.setPictures(pictureDTOS);
+		houseDTO.setCover(cdnPrefix+houseDTO.getCover());
+		List<String> tags = houseForm.getTags();
+		if(tags!=null&&!tags.isEmpty()){
+			List<HouseTag> houseTags=new ArrayList<>();
+			for(String tag:tags){
+				houseTags.add(new HouseTag(house.getId(),tag));
+			}
+			houseTagRepository.save(houseTags);
+			houseDTO.setTags(tags);
+		}
+		
+		return new ServiceResult<HouseDTO>(true,null,houseDTO);
+	}
+
+	/**   
+	 * <p>Title: updateStatus</p>   
+	 * <p>Description: </p>   
+	 * @param id
+	 * @param status
+	 * @return   
+	 * @see com.imooc.service.house.IHouseService#updateStatus(int, int)   
+	 */
+	@Override
+	@Transactional
+	public ServiceResult updateStatus(int id, int status) {
+		House house = houseRepository.findOne(id);
+		if(house==null){
+			return ServiceResult.notFound();
+		}
+		if(house.getStatus()==status){
+			return new ServiceResult(false,"状态没有变化");
+		}
+		
+		if(house.getStatus()==HouseStatus.RENTED.getValue()){
+			return new ServiceResult(false,"已出租的房源不允许修改状态");
+		}
+		
+		if(house.getStatus()==HouseStatus.DELETED.getValue()){
+			return new ServiceResult(false,"已删除的资源不允许操作");
+		}
+		houseRepository.updateStatus(id, status);
+		//上架更新索引其他情况都要删除索引
+		if(status==HouseStatus.PASSES.getValue()){
+			searchService.index(id);
+		}else{
+			searchService.remove(id);
+		}
+		return ServiceResult.success();
+	}
+	  
 
 }

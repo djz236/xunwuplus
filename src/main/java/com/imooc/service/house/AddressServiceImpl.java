@@ -25,7 +25,9 @@
  *********************************************************/
 package com.imooc.service.house;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.modelmapper.ModelMapper;
@@ -39,6 +41,7 @@ import com.imooc.entity.SupportAddress.Level;
 import com.imooc.repository.SubwayRepository;
 import com.imooc.repository.SubwayStationRepository;
 import com.imooc.repository.SupportAddressRepository;
+import com.imooc.service.ServiceMultiResult;
 import com.imooc.service.ServiceResult;
 import com.imooc.web.dto.SubwayDTO;
 import com.imooc.web.dto.SubwayStationDTO;
@@ -129,6 +132,82 @@ public class AddressServiceImpl implements IAddressService {
 	            return ServiceResult.notFound();
 	        }
 	        return ServiceResult.of(modelMapper.map(station, SubwayStationDTO.class));
+	}
+
+	/**   
+	 * <p>Title: findAllcities</p>   
+	 * <p>Description: </p>   
+	 * @return   
+	 * @see com.imooc.service.house.IAddressService#findAllcities()   
+	 */
+	@Override
+	public ServiceMultiResult<SupportAddressDTO> findAllCities() {
+		List<SupportAddress> addresses = supportAddressRepository.findAllByLevel(SupportAddress.Level.CITY.getValue());
+		List<SupportAddressDTO> addressDTOS=new ArrayList<>();
+		for(SupportAddress supportAddress: addresses){
+			SupportAddressDTO dto = modelMapper.map(supportAddress, SupportAddressDTO.class);
+			addressDTOS.add(dto);
+		}
+		return new ServiceMultiResult<>(addressDTOS.size(), addressDTOS);
+	}
+
+	/**   
+	 * <p>Title: findAllRegionsByCityName</p>   
+	 * <p>Description: </p>   
+	 * @param cityName
+	 * @return   
+	 * @see com.imooc.service.house.IAddressService#findAllRegionsByCityName(java.lang.String)   
+	 */
+	@Override
+	public ServiceMultiResult<SupportAddressDTO> findAllRegionsByCityName(String cityName) {
+		if(cityName==null){
+			return new ServiceMultiResult<>(0, null);
+		}
+		List<SupportAddressDTO> result=new ArrayList<>();
+		List<SupportAddress> regions = supportAddressRepository.findAllByLevelAndBelongTo(SupportAddress.Level.REGION.getValue(),
+				cityName);
+		for(SupportAddress region:regions){
+			result.add(modelMapper.map(region,SupportAddressDTO.class));
+		}
+		return new ServiceMultiResult<>(regions.size(), result);
+	}
+
+	/**   
+	 * <p>Title: findAllSubwayByCity</p>   
+	 * <p>Description: </p>   
+	 * @param cityEnName
+	 * @return   
+	 * @see com.imooc.service.house.IAddressService#findAllSubwayByCity(java.lang.String)   
+	 */
+	@Override
+	public List<SubwayDTO> findAllSubwayByCity(String cityEnName) {
+		
+		List<SubwayDTO> result=new ArrayList<>();
+		List<Subway> subways = subwayRepository.findAllByCityEnName(cityEnName);
+		if(subways.isEmpty()){
+			return result;
+		}
+		subways.forEach(subway->result.add(
+				modelMapper.map(subway,SubwayDTO.class)));
+		return result;
+	}
+
+	/**   
+	 * <p>Title: findAllStationBySubway</p>   
+	 * <p>Description: </p>   
+	 * @param subwayId
+	 * @return   
+	 * @see com.imooc.service.house.IAddressService#findAllStationBySubway(int)   
+	 */
+	@Override
+	public List<SubwayStationDTO> findAllStationBySubway(int subwayId) {
+		List<SubwayStationDTO> result=new ArrayList<>();
+		List<SubwayStation> stations = subwayStationRepository.findAllBySubwayId(subwayId);
+		if(stations.isEmpty()){
+			return result;
+		}
+		stations.forEach(station->result.add(modelMapper.map(station, SubwayStationDTO.class)));
+		return result;
 	}
 
 }

@@ -23,34 +23,31 @@
  *      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      *
  *********__佛祖保佑__永无BUG__验收通过__钞票多多__*********
  *********************************************************/
-package com.imooc.repository;
+package com.imooc.service.address;
 
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.data.repository.query.Param;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import com.imooc.entity.House;
+import com.imooc.XunwuplusApplicationTests;
+import com.imooc.service.house.IAddressService;
 
 /**   
- * @ClassName:  HouseRepository   
+ * @ClassName:  AddressServiceTests   
  * @Description:TODO(这里用一句话描述这个类的作用)   
  * @author: 公司名称 
- * @date:   2019年4月27日 下午6:22:47   
+ * @date:   2019年5月13日 下午3:46:02   
  *     
  * @Copyright: 2019 www.xxx.com Inc. All rights reserved. 
  * 注意：本内容仅限于公司内部传阅，禁止外泄以及用于其他的商业目 
  */
-public interface HouseRepository extends PagingAndSortingRepository<House, Integer>, JpaSpecificationExecutor<House> {
+public class AddressServiceTests extends XunwuplusApplicationTests {
 
-	@Modifying
-	@Query("update House as house set house.cover=:cover where house.id=:id")
-	void updateCover(@Param(value="id") int id,@Param(value="cover")String cover);
-	
-	@Modifying
-	@Query("update House as house set house.status=:status where house.id=:id")
-	void updateStatus (@Param(value="id") int id,
-			@Param(value="status") int status);
-	
+	@Autowired
+	private IAddressService addressService;
+	@Test
+	public void testGetMapLocation(){
+		String city="北京";
+		String address ="北京市昌平区巩华家园1号楼2单元";
+		//addressService
+	}
 }

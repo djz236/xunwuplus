@@ -23,71 +23,65 @@
  *      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      *
  *********__佛祖保佑__永无BUG__验收通过__钞票多多__*********
  *********************************************************/
-package com.imooc.service.house;
-
-import java.util.List;
-import java.util.Map;
-
-import com.imooc.entity.SupportAddress;
-import com.imooc.service.ServiceMultiResult;
-import com.imooc.service.ServiceResult;
-import com.imooc.web.dto.SubwayDTO;
-import com.imooc.web.dto.SubwayStationDTO;
-import com.imooc.web.dto.SupportAddressDTO;
+package com.imooc.service.search;
 
 /**
- * @ClassName: IAddressService
+ * @ClassName: HouseIndexMessage
  * @Description:TODO(这里用一句话描述这个类的作用)
  * @author: 公司名称
- * @date: 2019年4月28日 下午5:43:28
+ * @date: 2019年5月17日 下午4:58:52
  * 
  * @Copyright: 2019 www.xxx.com Inc. All rights reserved.
  *             注意：本内容仅限于公司内部传阅，禁止外泄以及用于其他的商业目
  */
-public interface IAddressService {
-	/**
-	 * 获取所有支持的城市列表
-	 * 
-	 * @return
-	 */
-	ServiceMultiResult<SupportAddressDTO> findAllCities();
-
-	/**
-	 * @Title: findCityAndRegion @Description:
-	 *         根据英文简写获取具体区域的信息 @param: @return @return: Map<> @throws
-	 */
-	Map<SupportAddress.Level, SupportAddressDTO> findCityAndRegion(
-			String cityEnName, String regionEnName);
-
-	ServiceResult<SubwayDTO> findSubway(Integer subwayId);
-
-	/**
-	 * 获取地铁站点信息
-	 * 
-	 * @param stationId
-	 * @return
-	 */
-	ServiceResult<SubwayStationDTO> findSubwayStation(Integer stationId);
-
-	/**
-	 * 根据城市英文简写获取该城市所有支持的区域信息
-	 * 
-	 * @param cityName
-	 * @return
-	 */
-	ServiceMultiResult findAllRegionsByCityName(String cityName);
-	/**
-     * 获取该城市所有的地铁线路
-     * @param cityEnName
-     * @return
-     */
-	List<SubwayDTO> findAllSubwayByCity(String cityEnName);
+public class HouseIndexMessage {
+	public static final String INDEX="index";
+	public static final String REMOVE="remove";
 	
-	 /**
-     * 获取地铁线路所有的站点
-     * @param subwayId
-     * @return
-     */
-	List<SubwayStationDTO>  findAllStationBySubway(int subwayId);
+	public static final int MAX_RETRY=3;
+	private int houseId;
+	private String operation;
+
+	private int retry=0;
+	
+	/**   
+	 * @Title:  HouseIndexMessage   
+	 * @Description: 默认构造器 防止json序列化失败  
+	 * @param:    
+	 * @throws   
+	 */
+	public HouseIndexMessage(){
+		
+	}
+	
+	public HouseIndexMessage(int houseId,String operation,int retry){
+		this.houseId=houseId;
+		this.operation=operation;
+		this.retry=retry;
+	}
+
+	public int getHouseId() {
+		return houseId;
+	}
+
+	public void setHouseId(int houseId) {
+		this.houseId = houseId;
+	}
+
+	public String getOperation() {
+		return operation;
+	}
+
+	public void setOperation(String operation) {
+		this.operation = operation;
+	}
+
+	public int getRetry() {
+		return retry;
+	}
+
+	public void setRetry(int retry) {
+		this.retry = retry;
+	}
 	
 }

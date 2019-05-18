@@ -6,6 +6,20 @@ INSERT INTO `user`(`id`, `name`, `email`, `phone_number`, `password`, `status`, 
 INSERT INTO `role`(`id`, `user_id`, `name`) VALUES (1, 1, 'USER');
 INSERT INTO `role`(`id`, `user_id`, `name`) VALUES (2, 2, 'USER');
 INSERT INTO `role`(`id`, `user_id`, `name`) VALUES (3, 3, 'ADMIN');
+/*Data for the table `house_picture` */
+
+insert  into `house_picture`(`id`,`house_id`,`cdn_prefix`,`width`,`height`,`location`,`path`) values (68,19,'http://7xo6gy.com1.z0.glb.clouddn.com/',911,683,NULL,'Fp1xPKVYtPsCeVHVQVW0Hif2FXk7'),(69,19,'http://7xo6gy.com1.z0.glb.clouddn.com/',1012,683,NULL,'Fn371N5gLsJvjuIRC4IHjPtMy61h'),(70,24,'http://7xo6gy.com1.z0.glb.clouddn.com/',1280,960,NULL,'Fn1AGNmZfadCIVTJA33gByg6a33B'),(71,24,'http://7xo6gy.com1.z0.glb.clouddn.com/',1024,683,NULL,'FlgoAylUv1ilx1SAtxSyBCJF3bwb'),(72,21,'http://7xo6gy.com1.z0.glb.clouddn.com/',1024,683,NULL,'FnuOFbFtDYTbpPdFoZthR-R0tszC'),(73,21,'http://7xo6gy.com1.z0.glb.clouddn.com/',455,683,NULL,'FhCiRnyCDQ-O6pXusu5ftmZkIh0-'),(74,20,'http://7xo6gy.com1.z0.glb.clouddn.com/',1024,683,NULL,'FvVqU8LneZZ5xaLBAOM1KXR2Pz1X'),(75,20,'http://7xo6gy.com1.z0.glb.clouddn.com/',1024,683,NULL,'FtNl9uPM6p5PjEs8z2FnOuViNtOM'),(76,18,'http://7xo6gy.com1.z0.glb.clouddn.com/',1440,960,NULL,'FgcD3BufAprERe5y3Gd-Mezu5VAy'),(77,18,'http://7xo6gy.com1.z0.glb.clouddn.com/',1024,683,NULL,'Fl1lNikhmMIecbTn-JTsurxugtFU'),(78,17,'http://7xo6gy.com1.z0.glb.clouddn.com/',1024,683,NULL,'FvVHtS1qAApFFh6k5LMDm5tliufK'),(79,17,'http://7xo6gy.com1.z0.glb.clouddn.com/',1024,683,NULL,'FpVYJRsLykrBRyUSCEOeqsqWU-bt'),(80,16,'http://7xo6gy.com1.z0.glb.clouddn.com/',1024,683,NULL,'Fhysh6EcQ_ZTl-jdGe2zaCFi5Uvm'),(81,16,'http://7xo6gy.com1.z0.glb.clouddn.com/',1024,683,NULL,'Fvb9TDMRtl1haBj9gK9C0k43X0u0'),(82,16,'http://7xo6gy.com1.z0.glb.clouddn.com/',1024,683,NULL,'FvkO1FFyGbrxCP_1O9tA94u2qvbP'),(83,15,'http://7xo6gy.com1.z0.glb.clouddn.com/',1024,683,NULL,'FsxiS6rOTpSg5pK7tv41e8Zpnn_c'),(84,15,'http://7xo6gy.com1.z0.glb.clouddn.com/',1024,683,NULL,'FpOKJ2IEmbA1y1RbIqgZfqFKkJyS'),(85,15,'http://7xo6gy.com1.z0.glb.clouddn.com/',1440,960,NULL,'Fhxz_c16YmEmIz5UVxrp6ihwbvCk'),(88,30,'http://pr4764aj7.bkt.clouddn.com/',350,200,NULL,'FmfIXkkIZ1HhIRsYFZsm8Lphcd1Q'),(89,30,'http://pr4764aj7.bkt.clouddn.com/',1153,1600,NULL,'Fj_FMjSFvrZHzgZ4K_wl8NP1u0ka'),(90,31,'http://pr4764aj7.bkt.clouddn.com/',350,200,NULL,'FmfIXkkIZ1HhIRsYFZsm8Lphcd1Q'),(91,31,'http://pr4764aj7.bkt.clouddn.com/',1153,1600,NULL,'Fh_RIgN7435GXqsfv5D4jPdFaNmA');
+
+/*Data for the table `house_subscribe` */
+insert  into `house_subscribe`(`id`,`house_id`,`user_id`,`yhms`,`status`,`create_time`,`last_update_time`,`order_time`,`telephone`,`admin_id`) values (9,17,1,NULL,3,'2017-11-26 11:06:23','2017-12-02 09:21:01','2017-12-03 00:00:00','13888888888',2);
+
+/*Data for the table `subway` */
+
+insert  into `subway`(`id`,`name`,`city_en_name`) values (1,'13号线','bj'),(2,'1号线','bj'),(3,'2号线','bj'),(4,'10号线','bj'),(5,'8号线','bj'),(6,'9号线','bj'),(7,'7号线','bj');
+
+/*Data for the table `subway_station` */
+
+insert  into `subway_station`(`id`,`subway_id`,`name`) values (5,1,'上地'),(16,1,'东直门'),(4,1,'五道口'),(14,1,'光熙门'),(11,1,'北苑'),(8,1,'回龙观'),(2,1,'大钟寺'),(12,1,'望京西'),(15,1,'柳芳'),(3,1,'知春路'),(10,1,'立水桥'),(13,1,'芍药居'),(6,1,'西二旗'),(1,1,'西直门'),(9,1,'霍营'),(7,1,'龙泽'),(33,4,'三元家庄'),(51,4,'三元桥'),(41,4,'丰台站'),(52,4,'亮马桥'),(27,4,'健德门'),(46,4,'公主坟'),(44,4,'六里桥'),(53,4,'农业展览馆'),(62,4,'分钟寺'),(59,4,'劲松'),(28,4,'北土城'),(61,4,'十里河'),(58,4,'双井'),(55,4,'呼家楼'),(54,4,'团结湖'),(57,4,'国贸'),(35,4,'大红门'),(32,4,'太阳宫'),(29,4,'安贞门'),(64,4,'宋家庄'),(20,4,'巴沟'),(30,4,'惠新西街南口'),(48,4,'慈寿寺'),(63,4,'成寿寺'),(42,4,'泥洼'),(22,4,'海淀黄庄'),(60,4,'潘家园'),(19,4,'火器营'),(26,4,'牡丹园'),(24,4,'知春路'),(23,4,'知春里'),(34,4,'石榴庄'),(39,4,'纪家庙'),(31,4,'芍药居'),(21,4,'苏州街'),(38,4,'草桥'),(45,4,'莲花桥'),(25,4,'西土城'),(43,4,'西局'),(47,4,'西钓鱼台'),(36,4,'角门东'),(37,4,'角门西'),(17,4,'车道沟'),(56,4,'金台夕照'),(18,4,'长春桥'),(40,4,'首经贸');
 
 -- address data
 INSERT INTO `support_address`(`id`, `belong_to`, `en_name`, `cn_name`, `level`, `baidu_map_lng`, `baidu_map_lat`)

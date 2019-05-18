@@ -39,7 +39,7 @@ import com.imooc.entity.User;
  * @Copyright: 2019 www.xxx.com Inc. All rights reserved. 
  * 注意：本内容仅限于公司内部传阅，禁止外泄以及用于其他的商业目 
  */
-public interface UserRepository  extends CrudRepository<User,Long> {
+public interface UserRepository  extends CrudRepository<User,Integer> {
 
 	User findByName(String userName);
 }

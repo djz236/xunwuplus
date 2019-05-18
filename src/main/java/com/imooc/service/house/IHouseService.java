@@ -41,6 +41,16 @@ import com.imooc.web.form.HouseForm;
  *             注意：本内容仅限于公司内部传阅，禁止外泄以及用于其他的商业目
  */
 public interface IHouseService {
+	/**   
+	 * @Title: save   
+	 * @Description: 新增  
+	 * @param: @param houseForm
+	 * @param: @return      
+	 * @return: ServiceResult<HouseDTO>      
+	 * @throws   
+	 */
+	ServiceResult<HouseDTO> save(HouseForm houseForm);
+	
 	ServiceMultiResult<HouseDTO> adminQuery(DatatableSearch searchBody);
 	ServiceResult update(HouseForm houseForm);
 	
@@ -81,4 +91,25 @@ public interface IHouseService {
 	 * @throws   
 	 */
 	ServiceResult removePhoto(int id);
+	
+	
+	/**   
+	 * @Title: updateCover   
+	 * @Description: 更新封面
+	 * @param: @return      
+	 * @return: ServiceResult      
+	 * @throws   
+	 */
+	ServiceResult updateCover(int coverId,int targetId);
+	/**   
+	 * @Title: updateStatus   
+	 * @Description: 更新房源状态
+	 * @param: @param id
+	 * @param: @param status
+	 * @param: @return      
+	 * @return: ServiceResult      
+	 * @throws   
+	 */
+	ServiceResult updateStatus(int id,int status);
+	
 }

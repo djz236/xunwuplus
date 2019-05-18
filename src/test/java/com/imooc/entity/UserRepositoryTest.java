@@ -23,71 +23,31 @@
  *      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      *
  *********__佛祖保佑__永无BUG__验收通过__钞票多多__*********
  *********************************************************/
-package com.imooc.service.house;
+package com.imooc.entity;
 
-import java.util.List;
-import java.util.Map;
+import org.junit.Assert;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import com.imooc.entity.SupportAddress;
-import com.imooc.service.ServiceMultiResult;
-import com.imooc.service.ServiceResult;
-import com.imooc.web.dto.SubwayDTO;
-import com.imooc.web.dto.SubwayStationDTO;
-import com.imooc.web.dto.SupportAddressDTO;
+import com.imooc.XunwuplusApplicationTests;
+import com.imooc.repository.UserRepository;
 
 /**
- * @ClassName: IAddressService
+ * @ClassName: UserRepositoryTest
  * @Description:TODO(这里用一句话描述这个类的作用)
  * @author: 公司名称
- * @date: 2019年4月28日 下午5:43:28
+ * @date: 2019年5月11日 下午2:27:57
  * 
  * @Copyright: 2019 www.xxx.com Inc. All rights reserved.
  *             注意：本内容仅限于公司内部传阅，禁止外泄以及用于其他的商业目
  */
-public interface IAddressService {
-	/**
-	 * 获取所有支持的城市列表
-	 * 
-	 * @return
-	 */
-	ServiceMultiResult<SupportAddressDTO> findAllCities();
+public class UserRepositoryTest extends XunwuplusApplicationTests {
+	@Autowired
+	private UserRepository userRepository;
 
-	/**
-	 * @Title: findCityAndRegion @Description:
-	 *         根据英文简写获取具体区域的信息 @param: @return @return: Map<> @throws
-	 */
-	Map<SupportAddress.Level, SupportAddressDTO> findCityAndRegion(
-			String cityEnName, String regionEnName);
-
-	ServiceResult<SubwayDTO> findSubway(Integer subwayId);
-
-	/**
-	 * 获取地铁站点信息
-	 * 
-	 * @param stationId
-	 * @return
-	 */
-	ServiceResult<SubwayStationDTO> findSubwayStation(Integer stationId);
-
-	/**
-	 * 根据城市英文简写获取该城市所有支持的区域信息
-	 * 
-	 * @param cityName
-	 * @return
-	 */
-	ServiceMultiResult findAllRegionsByCityName(String cityName);
-	/**
-     * 获取该城市所有的地铁线路
-     * @param cityEnName
-     * @return
-     */
-	List<SubwayDTO> findAllSubwayByCity(String cityEnName);
-	
-	 /**
-     * 获取地铁线路所有的站点
-     * @param subwayId
-     * @return
-     */
-	List<SubwayStationDTO>  findAllStationBySubway(int subwayId);
-	
+	@Test
+	public void testFindOne(){
+		User user = userRepository.findOne(1);
+		Assert.assertEquals("wali", user.getName());
+	}
 }
