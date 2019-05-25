@@ -27,7 +27,9 @@ package com.imooc.service.house;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
@@ -42,6 +44,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.Maps;
+import com.imooc.base.HouseSort;
 import com.imooc.base.HouseStatus;
 import com.imooc.base.LoginUserUtil;
 import com.imooc.entity.House;
@@ -67,6 +71,7 @@ import com.imooc.web.dto.HousePictureDTO;
 import com.imooc.web.form.DatatableSearch;
 import com.imooc.web.form.HouseForm;
 import com.imooc.web.form.PhotoForm;
+import com.imooc.web.form.RentSearch;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 
@@ -493,6 +498,119 @@ public class HouseServiceImpl implements IHouseService {
 			searchService.remove(id);
 		}
 		return ServiceResult.success();
+	}
+
+	/**   
+	 * <p>Title: query</p>   
+	 * <p>Description: </p>   
+	 * @param rentSearch
+	 * @return   
+	 * @see com.imooc.service.house.IHouseService#query(com.imooc.web.form.RentSearch)   
+	 */
+	@Override
+	public ServiceMultiResult<HouseDTO> query(RentSearch rentSearch) {
+		if(rentSearch.getKeywords()!=null&&!rentSearch.getKeywords().isEmpty()){
+			ServiceMultiResult<Integer> serviceResult=searchService.query(rentSearch);
+			if(serviceResult.getTotal()==0){
+				return new ServiceMultiResult<>(0, new ArrayList<>());
+			}
+			return new ServiceMultiResult<>(serviceResult.getTotal(), wrapperHouseResult(serviceResult.getResult()));
+		}
+		
+		
+		return simpleQuery(rentSearch);
+	}
+
+	/**   
+	 * @Title: simpleQuery   
+	 * @Description: TODO(这里用一句话描述这个方法的作用)   
+	 * @param: @param rentSearch
+	 * @param: @return      
+	 * @return: ServiceMultiResult<HouseDTO>      
+	 * @throws   
+	 */
+	private ServiceMultiResult<HouseDTO> simpleQuery(RentSearch rentSearch) {
+		Sort sort = HouseSort.generateSort(rentSearch.getOrderBy(), rentSearch.getOrderDirection());
+		int page=rentSearch.getStart()/rentSearch.getSize();
+		Pageable pageable = new PageRequest(page,rentSearch.getSize(),sort);
+		Specification<House> specification=(root,criteriaQuery,criteriaBuilder)->{
+			Predicate predicate = criteriaBuilder.equal(root.get("status"), HouseStatus.PASSES.getValue());
+			
+			predicate=criteriaBuilder.and(predicate,criteriaBuilder.equal(root.get("cityEnName"), rentSearch.getCityEnName()));
+			if(HouseSort.DISTANCE_TO_SUBWAY_KEY.equals(rentSearch.getOrderBy())){
+				predicate=criteriaBuilder.and(predicate,criteriaBuilder.gt(root.get(HouseSort.DISTANCE_TO_SUBWAY_KEY),-1));
+			}
+			return predicate;
+		};
+		
+		Page<House> houses = houseRepository.findAll(specification,pageable);
+		List<HouseDTO> houseDTOS = new ArrayList<>();
+		
+		ArrayList<Integer> houseIds = new ArrayList<>();
+		HashMap<Integer, HouseDTO> idToHouseMap = Maps.newHashMap();
+		houses.forEach(house->{
+			HouseDTO houseDTO = modelMapper.map(house, HouseDTO.class);
+			houseDTO.setCover(cdnPrefix+house.getCover());
+			houseDTOS.add(houseDTO);
+			houseIds.add(house.getId());
+			idToHouseMap.put(house.getId(), houseDTO);
+		});
+		
+		wrapperHouseList(houseIds,idToHouseMap);
+		return new ServiceMultiResult<HouseDTO>(houses.getTotalElements(), houseDTOS);
+	}
+	   /**
+     * 渲染详细信息 及 标签
+     * @param houseIds
+     * @param idToHouseMap
+     */
+    private void wrapperHouseList(List<Integer> houseIds, Map<Integer, HouseDTO> idToHouseMap) {
+        List<HouseDetail> details = houseDetailRepository.findAllByHouseIdIn(houseIds);
+        details.forEach(houseDetail -> {
+            HouseDTO houseDTO = idToHouseMap.get(houseDetail.getHouseId());
+            HouseDetailDTO detailDTO = modelMapper.map(houseDetail, HouseDetailDTO.class);
+            houseDTO.setHouseDetail(detailDTO);
+        });
+
+        List<HouseTag> houseTags = houseTagRepository.findAllByHouseIdIn(houseIds);
+       houseTags.forEach(houseTag -> {
+            HouseDTO house = idToHouseMap.get(houseTag.getHouseId());
+            house.getTags().add(houseTag.getName());
+        });
+       /* for(HouseTag ht:houseTags){
+        	HouseDTO houseDTO = idToHouseMap.get(ht.getHouseId());
+        	 String name = ht.getName();
+        	 List<String> tags = houseDTO.getTags();
+        	 tags.add(name);
+        }*/
+    }
+
+	/**   
+	 * @Title: wrapperHouseResult   
+	 * @Description: TODO(这里用一句话描述这个方法的作用)   
+	 * @param: @param result
+	 * @param: @return      
+	 * @return: Object      
+	 * @throws   
+	 */
+	private  List<HouseDTO> wrapperHouseResult(List<Integer> houseIds) {
+		List<HouseDTO> result = new ArrayList<>();
+
+        Map<Integer, HouseDTO> idToHouseMap = new HashMap<>();
+        Iterable<House> houses = houseRepository.findAll(houseIds);
+        houses.forEach(house -> {
+            HouseDTO houseDTO = modelMapper.map(house, HouseDTO.class);
+            houseDTO.setCover(this.cdnPrefix + house.getCover());
+            idToHouseMap.put(house.getId(), houseDTO);
+        });
+
+        wrapperHouseList(houseIds, idToHouseMap);
+
+        // 矫正顺序
+        for (int houseId : houseIds) {
+            result.add(idToHouseMap.get(houseId));
+        }
+        return result;
 	}
 	  
 

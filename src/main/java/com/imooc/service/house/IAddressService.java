@@ -90,4 +90,13 @@ public interface IAddressService {
      */
 	List<SubwayStationDTO>  findAllStationBySubway(int subwayId);
 	
+	/**   
+	 * @Title: findCity   
+	 * @Description: 根据城市英文简写获取城市详细信息   
+	 * @param: @param cityEnName
+	 * @param: @return      
+	 * @return: ServiceResult<SupportAddressDTO>      
+	 * @throws   
+	 */
+	ServiceResult<SupportAddressDTO> findCity(String cityEnName);
 }

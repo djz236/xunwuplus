@@ -210,4 +210,26 @@ public class AddressServiceImpl implements IAddressService {
 		return result;
 	}
 
+	/**   
+	 * <p>Title: findCity</p>   
+	 * <p>Description: </p>   
+	 * @param cityEnName
+	 * @return   
+	 * @see com.imooc.service.house.IAddressService#findCity(java.lang.String)   
+	 */
+	@Override
+	public ServiceResult<SupportAddressDTO> findCity(String cityEnName) {
+		if(cityEnName==null){
+			return ServiceResult.notFound();
+		}
+		
+		SupportAddress supportAddress = supportAddressRepository.findByEnNameAndLevel(cityEnName, SupportAddress.Level.CITY.getValue());
+		if(supportAddress==null){
+			return ServiceResult.notFound();
+		}
+		SupportAddressDTO addressDTO = modelMapper.map(supportAddress, SupportAddressDTO.class);
+		
+		return ServiceResult.of(addressDTO);
+	}
+
 }

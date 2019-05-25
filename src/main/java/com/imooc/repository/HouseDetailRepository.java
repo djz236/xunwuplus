@@ -25,6 +25,8 @@
  *********************************************************/
 package com.imooc.repository;
 
+import java.util.List;
+
 import org.springframework.data.repository.CrudRepository;
 
 import com.imooc.entity.HouseDetail;
@@ -41,4 +43,14 @@ import com.imooc.entity.HouseDetail;
 public interface HouseDetailRepository extends CrudRepository<HouseDetail, Integer>{
 
 	HouseDetail findByHouseId(int houseId);
+
+	/**   
+	 * @Title: findAllByHouseIdIn   
+	 * @Description: TODO(这里用一句话描述这个方法的作用)   
+	 * @param: @param houseIds
+	 * @param: @return      
+	 * @return: List<HouseDetail>      
+	 * @throws   
+	 */
+	List<HouseDetail> findAllByHouseIdIn(List<Integer> houseIds);
 }

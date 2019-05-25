@@ -26,6 +26,7 @@
 package com.imooc.web.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -275,7 +276,10 @@ public class HouseDTO implements Serializable {
 	}
 
 	public List<String> getTags() {
-		return tags;
+		if (this.tags == null) {
+            tags = new ArrayList<>();
+        }
+        return tags;
 	}
 
 	public void setTags(List<String> tags) {
@@ -298,11 +302,31 @@ public class HouseDTO implements Serializable {
 		this.subscribeStatus = subscribeStatus;
 	}
 
-	@Override
+/*	@Override
 	public String toString() {
 		return JSON.toJSONString(this);
-	}
+	}*/
 
+	 @Override
+	    public String toString() {
+	        return "HouseDTO{" +
+	                "id=" + id +
+	                ", title='" + title + '\'' +
+	                ", price=" + price +
+	                ", area=" + area +
+	                ", floor=" + floor +
+	                ", totalFloor=" + totalFloor +
+	                ", watchTimes=" + watchTimes +
+	                ", buildYear=" + buildYear +
+	                ", status=" + status +
+	                ", createTime=" + createTime +
+	                ", lastUpdateTime=" + lastUpdateTime +
+	                ", cityEnName='" + cityEnName + '\'' +
+	                ", cover='" + cover + '\'' +
+	                ", houseDetail=" + houseDetail +
+	                ", pictures=" + pictures +
+	                '}';
+	    }
 	
 	
 	

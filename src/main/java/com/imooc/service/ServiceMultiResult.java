@@ -25,6 +25,7 @@
  *********************************************************/
 package com.imooc.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,6 +46,8 @@ public class ServiceMultiResult<T> {
 		this.total = total;
 		this.result = result;
 	}
+
+ 
 
 	public long getTotal() {
 		return total;

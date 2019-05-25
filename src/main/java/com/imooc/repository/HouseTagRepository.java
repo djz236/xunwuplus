@@ -14,5 +14,14 @@ public interface HouseTagRepository extends CrudRepository<HouseTag, Integer> {
 
     List<HouseTag> findAllByHouseId(int id);
 
-    List<HouseTag> findAllByHouseIdIn(List<Integer> houseIds);
+
+	/**   
+	 * @Title: findAllByHouseIdIn   
+	 * @Description: TODO(这里用一句话描述这个方法的作用)   
+	 * @param: @param houseIds
+	 * @param: @return      
+	 * @return: List<HouseTag>      
+	 * @throws   
+	 */
+	List<HouseTag> findAllByHouseIdIn(List<Integer> houseIds);
 }

@@ -25,6 +25,8 @@
  *********************************************************/
 package com.imooc.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -52,5 +54,15 @@ public interface HouseRepository extends PagingAndSortingRepository<House, Integ
 	@Query("update House as house set house.status=:status where house.id=:id")
 	void updateStatus (@Param(value="id") int id,
 			@Param(value="status") int status);
+
+	/**   
+	 * @Title: findAll   
+	 * @Description: TODO(这里用一句话描述这个方法的作用)   
+	 * @param: @param houseIds
+	 * @param: @return      
+	 * @return: Iterable<House>      
+	 * @throws   
+	 */
+	//Iterable<House> findAll(List<Integer> houseIds);
 	
 }

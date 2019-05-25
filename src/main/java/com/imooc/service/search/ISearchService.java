@@ -36,7 +36,7 @@ public interface ISearchService {
      * @param rentSearch
      * @return
      */
-    ServiceMultiResult<Long> query(RentSearch rentSearch);
+    ServiceMultiResult<Integer> query(RentSearch rentSearch);
 
     /**
      * 获取补全建议关键词

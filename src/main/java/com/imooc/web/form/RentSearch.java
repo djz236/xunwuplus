@@ -27,7 +27,7 @@ package com.imooc.web.form;
 
 /**   
  * @ClassName:  RentSearch   
- * @Description:TODO(这里用一句话描述这个类的作用)   
+ * @Description:租房请求参数结构体
  * @author: 公司名称 
  * @date:   2019年4月27日 下午4:33:40   
  *     
@@ -46,6 +46,22 @@ public class RentSearch {
 	private int rentWay=-1;
 	private String orderBy="";
 	private String orderDirection="desc";
+	  private int start = 0;
+
+	    private int size = 5;
+	    
+	public int getStart() {
+			return start;
+		}
+		public void setStart(int start) {
+			this.start = start;
+		}
+		public int getSize() {
+			return size;
+		}
+		public void setSize(int size) {
+			this.size = size;
+		}
 	public String getCityEnName() {
 		return cityEnName;
 	}

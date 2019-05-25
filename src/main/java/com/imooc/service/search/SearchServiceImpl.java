@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.logging.log4j.core.util.Integers;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeAction;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeRequestBuilder;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
@@ -219,9 +220,127 @@ public class SearchServiceImpl implements ISearchService {
 	}
 
 	@Override
-	public ServiceMultiResult<Long> query(RentSearch rentSearch) {
+	public ServiceMultiResult<Integer> query(RentSearch rentSearch) {
+		//QueryBuilder 是es中提供的一个查询接口, 可以对其进行参数设置来进行查用
+//		.matchAllQuery()
+//
+//		matchAllQuery()方法用来匹配全部文档
+//		matchQuery("filedname","value")匹配单个字段，匹配字段名为filedname,值为value的文档
+//		.multiMatchQuery(Object text, String... fieldNames)
+//
+//		多个字段匹配某一个值
+//		wildcardQuery()模糊查询
+//
+//		模糊查询，?匹配单个字符，*匹配多个字符
+//				使用BoolQueryBuilder进行复合查询
+//
+//				使用must
+//				通过from和size参数进行分页。From定义查询结果开始位置，size定义返回的hits（一条hit对应一条记录）最大数量。
+				 /**
+			     * boolQuery 组合查询
+			     * must(QueryBuilders) :   AND
+			     * mustNot(QueryBuilders): NOT
+			     * should:                  : OR
+			     */
+				
+		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+		/*
+		Elasticsearch在2.x版本的时候把filter查询给摘掉了，因此在query dsl里面已经找不到filter query了。
+		其实es并没有完全抛弃filter query，而是它的设计与之前的query太重复了。因此直接给转移到了bool查询中。
+		Bool查询现在包括四种子句，must，filter,should,must_not。
+		看上面的流程图就能很明显的看到，filter与query还是有很大的区别的。
 
-		return null;
+比如，query的时候，会先比较查询条件，然后计算分值，最后返回文档结果；
+
+而filter则是先判断是否满足查询条件，如果不满足，会缓存查询过程（记录该文档不满足结果）；满足的话，就直接缓存结果。
+
+综上所述，filter快在两个方面：
+
+1 对结果进行缓存
+2 避免计算分值
+		*/
+		
+/*		bool查询的使用
+		Bool查询对应Lucene中的BooleanQuery，它由一个或者多个子句组成，每个子句都有特定的类型。
+
+		must
+		返回的文档必须满足must子句的条件，并且参与计算分值
+
+		filter
+		返回的文档必须满足filter子句的条件。但是不会像Must一样，参与计算分值
+
+		should
+		返回的文档可能满足should子句的条件。在一个Bool查询中，如果没有must或者filter，有一个或者多个should子句，那么只要满足一个就可以返回。minimum_should_match参数定义了至少满足几个子句。
+
+		must_nout
+		返回的文档必须不满足must_not定义的条件。
+
+match query搜索的时候，首先会解析查询字符串，进行分词，然后查询，而term query,输入的查询内容是什么，就会按照什么去查询，并不会解析查询内容，对它分词。
+*/
+		boolQuery.filter(QueryBuilders.termQuery(HouseIndexKey.CITY_EN_NAME, rentSearch.getCityEnName()));
+		if(rentSearch.getRegionEnName()!=null&&!"*".equals(rentSearch.getRegionEnName())){
+			boolQuery.filter(QueryBuilders.termQuery(HouseIndexKey.REGION_EN_NAME, rentSearch.getRegionEnName()));
+		}
+		RentValueBlock area = RentValueBlock.matchArea(rentSearch.getAreaBlock());
+		if(!RentValueBlock.ALL.equals(area)){
+			RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(HouseIndexKey.AREA);
+			if(area.getMax()>0){
+				rangeQueryBuilder.lte(area.getMax());
+			}
+			if(area.getMin()>0){
+				rangeQueryBuilder.gte(area.getMin());
+			}
+			boolQuery.filter(rangeQueryBuilder);
+		}
+		RentValueBlock price=RentValueBlock.matchPrice(rentSearch.getPriceBlock());
+		if(!RentValueBlock.ALL.equals(price)){
+			RangeQueryBuilder rangeQuery=QueryBuilders.rangeQuery(HouseIndexKey.PRICE);
+			if(price.getMax()>0){
+				rangeQuery.lte(price.getMax());
+			}
+			if(price.getMin()>0){
+				rangeQuery.gte(price.getMin());
+			}
+			boolQuery.filter(rangeQuery);
+		}
+		if(rentSearch.getDirection()>0){
+			boolQuery.filter(QueryBuilders.termQuery(HouseIndexKey.DIRECTION,rentSearch.getDirection()));
+		}
+		if(rentSearch.getRentWay()>-1){
+			boolQuery.filter(QueryBuilders.termQuery(HouseIndexKey.RENT_WAY,rentSearch.getRentWay()));
+		}
+		 /* 相对于matchQuery，multiMatchQuery针对的是多个field，
+		  也就是说，当multiMatchQuery中，fieldNames参数只有一个时，其作用与matchQuery相当；
+		  而当fieldNames有多个参数时，如field1和field2，那查询的结果中，要么field1中包含text，要么field2中包含text。*/
+		boolQuery.must(QueryBuilders.multiMatchQuery(rentSearch.getKeywords(),
+				HouseIndexKey.TITLE,
+				HouseIndexKey.TRAFFIC,
+				HouseIndexKey.DISTRICT,
+				HouseIndexKey.ROUND_SERVICE,
+				HouseIndexKey.SUBWAY_LINE_NAME,
+				HouseIndexKey.SUBWAY_STATION_NAME
+				));
+		SearchRequestBuilder requestBuilder = esClient.prepareSearch(INDEX_NAME).setTypes(INDEX_NAME)
+				.setQuery(boolQuery)
+				.addSort(HouseSort.getSortKey(rentSearch.getOrderBy()),
+						SortOrder.fromString(rentSearch.getOrderDirection()))
+				.setFrom(rentSearch.getStart())
+				.setSize(rentSearch.getSize())
+				.setFetchSource(HouseIndexKey.HOUSE_ID,null);
+		logger.debug(requestBuilder.toString());
+		List<Integer> houseIds=new ArrayList<>();
+		SearchResponse response = requestBuilder.get();
+		
+		if(response.status()!=RestStatus.OK){
+			logger.warn("Search status is no ok for "+requestBuilder);
+			return new ServiceMultiResult<>(0, houseIds);
+		}
+		for(SearchHit hit:response.getHits()){
+			System.out.println(hit.getSource());
+			houseIds.add(Integers.parseInt(String.valueOf(hit.getSource().get(HouseIndexKey.HOUSE_ID))));
+		}
+		
+		return new ServiceMultiResult<>(response.getHits().totalHits, houseIds);
 	}
 
 	@Override
