@@ -26,19 +26,29 @@
 package com.imooc.web.controller.house;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.imooc.base.ApiResponse;
+import com.imooc.entity.SupportAddress;
+import com.imooc.service.IUserService;
 import com.imooc.service.ServiceMultiResult;
+import com.imooc.service.ServiceResult;
 import com.imooc.service.house.IAddressService;
+import com.imooc.service.house.IHouseService;
+import com.imooc.service.search.ISearchService;
+import com.imooc.web.dto.HouseDTO;
 import com.imooc.web.dto.SubwayDTO;
 import com.imooc.web.dto.SubwayStationDTO;
 import com.imooc.web.dto.SupportAddressDTO;
+import com.imooc.web.dto.UserDTO;
 
 /**
  * @ClassName: HouseController
@@ -54,7 +64,25 @@ public class HouseController {
 
 	@Autowired
 	private IAddressService addressService;
-	
+	@Autowired
+	private ISearchService searchService;
+	  @Autowired
+	    private IUserService userService;
+    @Autowired
+    private IHouseService houseService;
+	@GetMapping("rent/house/autocomplete")
+	@ResponseBody
+	public ApiResponse autoComplete(
+			@RequestParam(value="prefix") String prefix){
+		if(prefix.isEmpty()){
+			return ApiResponse.ofStatus(ApiResponse.Status.BAD_REQUEST);
+		}
+		
+		ServiceResult<List<String>> result = searchService.suggest(prefix);
+		
+		
+		return ApiResponse.ofSucess(result.getResult());
+	}
 	/**
      * 获取对应地铁线路所支持的地铁站点
      * @param subwayId
@@ -97,7 +125,38 @@ public class HouseController {
 		return ApiResponse.ofSucess(result.getResult());
 	}
  
-	
+
+    @GetMapping("rent/house/show/{id}")
+    public String show(@PathVariable(value = "id") Integer houseId,
+                       Model model) {
+        if (houseId <= 0) {
+            return "404";
+        }
+
+        ServiceResult<HouseDTO> serviceResult = houseService.findCompleteOne(houseId);
+        if (!serviceResult.isSuccess()) {
+            return "404";
+        }
+
+        HouseDTO houseDTO = serviceResult.getResult();
+        Map<SupportAddress.Level, SupportAddressDTO>
+                addressMap = addressService.findCityAndRegion(houseDTO.getCityEnName(), houseDTO.getRegionEnName());
+
+        SupportAddressDTO city = addressMap.get(SupportAddress.Level.CITY);
+        SupportAddressDTO region = addressMap.get(SupportAddress.Level.REGION);
+
+        model.addAttribute("city", city);
+        model.addAttribute("region", region);
+
+        ServiceResult<UserDTO> userDTOServiceResult = userService.findById(houseDTO.getAdminId());
+        model.addAttribute("agent", userDTOServiceResult.getResult());
+        model.addAttribute("house", houseDTO);
+
+        ServiceResult<Integer> aggResult = searchService.aggregateDistrictHouse(city.getEnName(), region.getEnName(), houseDTO.getDistrict());
+        model.addAttribute("houseCountInDistrict", aggResult.getResult());
+
+        return "house-detail";
+    }
 	/**   
 	 * @Title: getSupportRegion   
 	 * @Description: 获取对应城市支持区域列表   

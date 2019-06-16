@@ -10,6 +10,7 @@ import org.apache.logging.log4j.core.util.Integers;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeAction;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeRequestBuilder;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
+import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse.AnalyzeToken;
 import org.elasticsearch.action.bulk.byscroll.BulkByScrollResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -19,6 +20,7 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 //import org.elasticsearch.index.reindex.BulkByScrollResponse;
@@ -26,6 +28,7 @@ import org.elasticsearch.index.reindex.DeleteByQueryAction;
 import org.elasticsearch.index.reindex.DeleteByQueryRequestBuilder;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -217,9 +220,8 @@ public class SearchServiceImpl implements ISearchService {
 		} catch (JsonProcessingException e) {
 			logger.error("Cannot encode json for "+message,e);
 		}
-	}
-
-	@Override
+	} 
+	 @Override
 	public ServiceMultiResult<Integer> query(RentSearch rentSearch) {
 		//QueryBuilder 是es中提供的一个查询接口, 可以对其进行参数设置来进行查用
 //		.matchAllQuery()
@@ -309,24 +311,50 @@ match query搜索的时候，首先会解析查询字符串，进行分词，然
 		if(rentSearch.getRentWay()>-1){
 			boolQuery.filter(QueryBuilders.termQuery(HouseIndexKey.RENT_WAY,rentSearch.getRentWay()));
 		}
+		/*
+		 * 优化
+		 * boolQuery.must(QueryBuilders.matchQuery(HouseIndexKey.TITLE,
+				rentSearch.getKeywords()).boost(2.0f));
+		 * boolQuery.should(QueryBuilders.matchQuery(HouseIndexKey.TITLE,
+				rentSearch.getKeywords()).boost(2.0f));
+				
+		 boolQuery.should(
+	                QueryBuilders.multiMatchQuery(rentSearch.getKeywords(),
+	                        HouseIndexKey.TITLE,
+	                        HouseIndexKey.TRAFFIC,
+	                        HouseIndexKey.DISTRICT,
+	                        HouseIndexKey.ROUND_SERVICE,
+	                        HouseIndexKey.SUBWAY_LINE_NAME,
+	                        HouseIndexKey.SUBWAY_STATION_NAME
+	                ));
+				*/
+		
 		 /* 相对于matchQuery，multiMatchQuery针对的是多个field，
 		  也就是说，当multiMatchQuery中，fieldNames参数只有一个时，其作用与matchQuery相当；
 		  而当fieldNames有多个参数时，如field1和field2，那查询的结果中，要么field1中包含text，要么field2中包含text。*/
-		boolQuery.must(QueryBuilders.multiMatchQuery(rentSearch.getKeywords(),
-				HouseIndexKey.TITLE,
-				HouseIndexKey.TRAFFIC,
-				HouseIndexKey.DISTRICT,
-				HouseIndexKey.ROUND_SERVICE,
-				HouseIndexKey.SUBWAY_LINE_NAME,
-				HouseIndexKey.SUBWAY_STATION_NAME
-				));
-		SearchRequestBuilder requestBuilder = esClient.prepareSearch(INDEX_NAME).setTypes(INDEX_NAME)
-				.setQuery(boolQuery)
-				.addSort(HouseSort.getSortKey(rentSearch.getOrderBy()),
-						SortOrder.fromString(rentSearch.getOrderDirection()))
-				.setFrom(rentSearch.getStart())
-				.setSize(rentSearch.getSize())
-				.setFetchSource(HouseIndexKey.HOUSE_ID,null);
+		 boolQuery.must(
+	                QueryBuilders.multiMatchQuery(rentSearch.getKeywords(),
+	                        HouseIndexKey.TITLE,
+	                        HouseIndexKey.TRAFFIC,
+	                        HouseIndexKey.DISTRICT,
+	                        HouseIndexKey.ROUND_SERVICE,
+	                        HouseIndexKey.SUBWAY_LINE_NAME,
+	                        HouseIndexKey.SUBWAY_STATION_NAME
+	                ));
+
+	        SearchRequestBuilder requestBuilder = this.esClient.prepareSearch(INDEX_NAME)
+	                .setTypes(INDEX_TYPE)
+	                .setQuery(boolQuery)
+	                .addSort(
+	                        HouseSort.getSortKey(rentSearch.getOrderBy()),
+	                        SortOrder.fromString(rentSearch.getOrderDirection())
+	                )
+	                .setFrom(rentSearch.getStart())
+	                .setSize(rentSearch.getSize())
+	                .setFetchSource(HouseIndexKey.HOUSE_ID, null)//防止返回的数据集过大的情况  只返回关键字段
+	                ;
+	        
+	        System.out.println(requestBuilder.toString());
 		logger.debug(requestBuilder.toString());
 		List<Integer> houseIds=new ArrayList<>();
 		SearchResponse response = requestBuilder.get();
@@ -351,10 +379,10 @@ match query搜索的时候，首先会解析查询字符串，进行分词，然
 		SuggestBuilder suggestBuilder = new SuggestBuilder();
 		suggestBuilder.addSuggestion("autocomplete", suggestion);
 
-		SearchRequestBuilder requestBuilder = null;// this.esClient.prepareSearch(INDEX_NAME)
-		/*
-		 * .setTypes(INDEX_TYPE) .suggest(suggestBuilder);
-		 */
+		SearchRequestBuilder requestBuilder =  this.esClient.prepareSearch(INDEX_NAME)
+		
+		  .setTypes(INDEX_TYPE) .suggest(suggestBuilder);
+		
 		logger.debug(requestBuilder.toString());
 
 		SearchResponse response = requestBuilder.get();
@@ -473,6 +501,11 @@ match query搜索的时候，首先会解析查询字符串，进行分词，然
 		}
 	}
 	private boolean create(HouseIndexTemplate indexTemplate) {
+		boolean updateSuggest = updateSuggest(indexTemplate);
+		
+		if(!updateSuggest){
+			return false;
+		}
 		try {
 			IndexResponse response = esClient
 					.prepareIndex(INDEX_NAME, INDEX_TYPE)
@@ -494,6 +527,11 @@ match query搜索的时候，首先会解析查询字符串，进行分词，然
 	}
 
 	private boolean update(String esid, HouseIndexTemplate indexTemplate) {
+boolean updateSuggest = updateSuggest(indexTemplate);
+		
+		if(!updateSuggest){
+			return false;
+		}
 		try {
 			UpdateResponse response = esClient
 					.prepareUpdate(INDEX_NAME, INDEX_TYPE, esid)
@@ -532,7 +570,49 @@ match query搜索的时候，首先会解析查询字符串，进行分词，然
 			return create(indexTemplate);
 		}
 	}
-
+	public boolean updateSuggest(HouseIndexTemplate indexTemplate){
+		AnalyzeRequestBuilder requestBuilder = 
+				new AnalyzeRequestBuilder(this.esClient,
+						AnalyzeAction.INSTANCE,
+						INDEX_NAME,
+						indexTemplate.getTitle(),
+						indexTemplate.getLayoutDesc(),
+						indexTemplate.getRoundService(),
+						indexTemplate.getDescription(),
+						indexTemplate.getSubwayLineName(),
+						indexTemplate.getSubwayStationName()
+						);
+		
+		requestBuilder.setAnalyzer("ik_smart");
+		
+		AnalyzeResponse response=requestBuilder.get();
+		List<AnalyzeToken> tokens = response.getTokens();
+		if(tokens==null){
+			logger.warn("Can not analyze token for house:"+
+		indexTemplate.getHouseId());
+			return false;
+		}
+		
+		List<HouseSuggest> suggests=new ArrayList<>();
+		for(AnalyzeResponse.AnalyzeToken token:tokens ){
+			//排序数字类型 &小于2个字符的分词结果
+			if("<NUM>".equals(token.getType())||token.getTerm().length()<2){
+				continue;
+			}
+			HouseSuggest suggest=new HouseSuggest();
+			suggest.setInput(token.getTerm());
+			suggests.add(suggest);
+		}
+		
+		//定制化小区自动补全 ？？？？？？？？？？？？？？？？？
+		HouseSuggest suggest = new HouseSuggest();
+		suggest.setInput(indexTemplate.getDistrict());
+		suggests.add(suggest);
+		
+		indexTemplate.setSuggest(suggests);
+		
+		return true;
+	}
 	/**
 	 * <p>
 	 * Title: aggregateDistrictHouse
@@ -549,10 +629,37 @@ match query搜索的时候，首先会解析查询字符串，进行分词，然
 	 *      java.lang.String, java.lang.String)
 	 */
 	@Override
-	public ServiceResult<Long> aggregateDistrictHouse(String cityEnName,
+	public ServiceResult<Integer> aggregateDistrictHouse(String cityEnName,
 			String regionEnName, String district) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		BoolQueryBuilder boolQuery=
+				QueryBuilders.boolQuery()
+				.filter(QueryBuilders.termQuery(HouseIndexKey.CITY_EN_NAME,
+						cityEnName))
+.filter(QueryBuilders.termQuery(HouseIndexKey.REGION_EN_NAME,regionEnName))
+.filter(QueryBuilders.termQuery(HouseIndexKey.DISTRICT, district));
+		
+		
+		SearchRequestBuilder requestBuilder = esClient.prepareSearch(INDEX_NAME)
+		.setTypes(INDEX_TYPE)
+		.setQuery(boolQuery)
+		.addAggregation(
+				AggregationBuilders.terms(HouseIndexKey.AGG_DISTRICT)
+				.field(HouseIndexKey.DISTRICT)
+		);
+		
+		logger.debug(requestBuilder.toString());
+		SearchResponse response = requestBuilder.get();
+		if(response.status()==RestStatus.OK){
+			Terms terms = response.getAggregations().get(HouseIndexKey.AGG_DISTRICT);
+			if(terms.getBuckets()!=null
+					&&!terms.getBuckets().isEmpty()){
+				return ServiceResult.of(Integer.valueOf(terms.getBucketByKey(district).getDocCount()+""));
+			}
+		}else{
+			logger.warn("Fail to Aggregate for "+HouseIndexKey.AGG_DISTRICT);
+		}
+		return ServiceResult.of(0);
 	}
 
 	/**

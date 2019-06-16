@@ -30,6 +30,8 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.imooc.XunwuplusApplicationTests;
+import com.imooc.service.ServiceMultiResult;
+import com.imooc.web.form.RentSearch;
 
 /**   
  * @ClassName:  SearchServiceTests   
@@ -55,4 +57,19 @@ public class SearchServiceTests extends XunwuplusApplicationTests {
 		searchService.remove(15);
 		
 	}
+	@Test
+	public void testQuery(){
+		RentSearch rentSearch = new RentSearch();
+		rentSearch.setCityEnName("bj");
+		rentSearch.setKeywords("光");
+		rentSearch.setStart(0);
+		rentSearch.setSize(10);
+		ServiceMultiResult<Integer> query = searchService.query(rentSearch);
+		Assert.assertEquals(8, query.getTotal());
+	}
+	
+	
+	
+	
+	
 }

@@ -57,7 +57,7 @@ public class HouseDTO implements Serializable {
 	private int parlour;
 	private int bathroom;
 	private int floor;
-	private Long adminId;
+	private Integer adminId;
 
 	private String district;
 
@@ -163,11 +163,11 @@ public class HouseDTO implements Serializable {
 		this.floor = floor;
 	}
 
-	public Long getAdminId() {
+	public Integer getAdminId() {
 		return adminId;
 	}
 
-	public void setAdminId(Long adminId) {
+	public void setAdminId(Integer adminId) {
 		this.adminId = adminId;
 	}
 

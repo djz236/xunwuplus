@@ -28,6 +28,7 @@ package com.imooc.service.user;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,6 +40,8 @@ import com.imooc.entity.User;
 import com.imooc.repository.RoleRepository;
 import com.imooc.repository.UserRepository;
 import com.imooc.service.IUserService;
+import com.imooc.service.ServiceResult;
+import com.imooc.web.dto.UserDTO;
 
 /**   
  * @ClassName:  UserServiceImpl   
@@ -56,6 +59,8 @@ public class UserServiceImpl implements IUserService {
 	private UserRepository userRepository;
 	@Autowired
 	private RoleRepository roleRepository; 
+	  @Autowired
+	    private ModelMapper modelMapper;
 	/**   
 	 * <p>Title: findUserByName</p>   
 	 * <p>Description: </p>   
@@ -80,6 +85,22 @@ public class UserServiceImpl implements IUserService {
 		 roles.forEach(role->authorities.add(new SimpleGrantedAuthority("ROLE_"+role.getName())));
 	 	user.setAuthorityList(authorities);
 		return user;
+	}
+	/**   
+	 * <p>Title: findById</p>   
+	 * <p>Description: </p>   
+	 * @param userId
+	 * @return   
+	 * @see com.imooc.service.IUserService#findById(java.lang.Long)   
+	 */
+	@Override
+	public ServiceResult<UserDTO> findById(Integer userId) {
+		 User user = userRepository.findOne(userId);
+	        if (user == null) {
+	            return ServiceResult.notFound();
+	        }
+	        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+	        return ServiceResult.of(userDTO);
 	}
 
 }

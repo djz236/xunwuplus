@@ -51,9 +51,23 @@ public class ElasticSearchConfig {
 	public TransportClient esClient() throws UnknownHostException {
 		Settings settings = Settings.builder()
 				.put("cluster.name", "xunwu")
-				.put("client.transport.sniff", true).build();
+				.put("client.transport.sniff", false).build();
+		
+		/*常见问题
+
+		ip问题
+		当ES服务器监听使用内网服务器IP而访问使用外网IP时，不要使用client.transport.sniff为true，在自动发现时会使用内网IP进行通信，导致无法连接到ES服务器，而直接使用addTransportAddress方法进行指定ES服务器。
+
+		版本问题
+		使用的elasticsearch 5.4.0版本，API使用的5.2.1，client.transport.sniff = true ，连接和查询正常
+
+		使用的elasticsearch 5.4.0版本，API使用的5.4.0，client.transport.sniff = true ，查询时报出异常
+		
+				原因是client没有连接上，当把client.transport.sniff = false的时候，可以正常连接和查询。也就是说，API 5.4.0 可能会出现这个问题，具体原因还不清楚。
+
+				处理方式：client.transport.sniff = false 就无法自动搜索到集群中的其他节点，所以，需要将节点手动添加到client中。*/
 		InetSocketTransportAddress master = new InetSocketTransportAddress(
-				InetAddress.getByName("110.249.219.143"), 9300);
+				InetAddress.getByName("39.104.100.138"), 9300);
 		TransportClient transportClient = new PreBuiltTransportClient(settings)
 				.addTransportAddress(master);
 		return transportClient;

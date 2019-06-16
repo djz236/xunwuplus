@@ -26,6 +26,7 @@
 package com.imooc.service;
 
 import com.imooc.entity.User;
+import com.imooc.web.dto.UserDTO;
 
 /**
  * @ClassName: IUserService
@@ -39,4 +40,5 @@ import com.imooc.entity.User;
 public interface IUserService {
 
 	User findUserByName(String userName);
+	  ServiceResult<UserDTO> findById(Integer userId);
 }
