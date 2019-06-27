@@ -51,7 +51,7 @@ public class HouseIndexTemplate {
 
      private List<HouseSuggest> suggest;
 
-   /* private BaiduMapLocation location;
+   private BaiduMapLocation location;
 
     public BaiduMapLocation getLocation() {
         return location;
@@ -59,7 +59,7 @@ public class HouseIndexTemplate {
 
     public void setLocation(BaiduMapLocation location) {
         this.location = location;
-    } */
+    }  
 
     public Long getHouseId() {
         return houseId;

@@ -98,6 +98,8 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter
 		SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
 		resolver.setApplicationContext(this.applicationContext);
 		resolver.setCharacterEncoding("UTF-8");
+		
+		//能保证不用每次重启项目就能在前端看见 更新或者修改的页面  但是在服务器上最好是要求利用缓存 这样的话性能会更好一些
 		resolver.setCacheable(cacheable);
 		return resolver;
 	}

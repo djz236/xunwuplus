@@ -343,12 +343,12 @@
         if (typeof(keywords) !== 'undefined' && keywords !== null && keywords.length > 0) {
             data.keywords = keywords;
         }
-
         var target = '/rent/house?cityEnName=' + [[${searchBody.cityEnName}]] + '&';
         $.each(data, function (key, value) {
             target += (key + '=' + value + '&');
         });
         target += 'start=' + start + '&size=' + size;
+        
         return target;
     }
 
@@ -449,7 +449,8 @@
                 });
             },
             select: function (event, ui) { // 选中事件
-                $('#keyword-box').text(ui.item.value);
+              //  $('#keyword-box').text(ui.item.value);
+            document.getElementById('keyword-box').value=ui.item.value;
                 window.location.href = locate_url(start, size);
             }
         });

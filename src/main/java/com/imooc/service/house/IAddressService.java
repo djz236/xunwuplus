@@ -31,6 +31,7 @@ import java.util.Map;
 import com.imooc.entity.SupportAddress;
 import com.imooc.service.ServiceMultiResult;
 import com.imooc.service.ServiceResult;
+import com.imooc.service.search.BaiduMapLocation;
 import com.imooc.web.dto.SubwayDTO;
 import com.imooc.web.dto.SubwayStationDTO;
 import com.imooc.web.dto.SupportAddressDTO;
@@ -99,4 +100,6 @@ public interface IAddressService {
 	 * @throws   
 	 */
 	ServiceResult<SupportAddressDTO> findCity(String cityEnName);
+	
+	ServiceResult<BaiduMapLocation> getBaiduMapLocation(String city,String address); 
 }

@@ -30,6 +30,7 @@ import com.imooc.service.ServiceResult;
 import com.imooc.web.dto.HouseDTO;
 import com.imooc.web.form.DatatableSearch;
 import com.imooc.web.form.HouseForm;
+import com.imooc.web.form.MapSearch;
 import com.imooc.web.form.RentSearch;
 
 /**
@@ -118,4 +119,12 @@ public interface IHouseService {
      * @return
      */
     ServiceMultiResult<HouseDTO> query(RentSearch rentSearch);
+    
+    /**
+     * 全地图查询
+     * @param mapSearch
+     * @return
+     */
+    ServiceMultiResult<HouseDTO> wholeMapQuery(MapSearch mapSearch);
+    
 }

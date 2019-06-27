@@ -25,15 +25,27 @@
  *********************************************************/
 package com.imooc.service.house;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.imooc.entity.Subway;
 import com.imooc.entity.SubwayStation;
 import com.imooc.entity.SupportAddress;
@@ -43,6 +55,7 @@ import com.imooc.repository.SubwayStationRepository;
 import com.imooc.repository.SupportAddressRepository;
 import com.imooc.service.ServiceMultiResult;
 import com.imooc.service.ServiceResult;
+import com.imooc.service.search.BaiduMapLocation;
 import com.imooc.web.dto.SubwayDTO;
 import com.imooc.web.dto.SubwayStationDTO;
 import com.imooc.web.dto.SupportAddressDTO;
@@ -58,14 +71,19 @@ import com.imooc.web.dto.SupportAddressDTO;
  */
 @Service
 public class AddressServiceImpl implements IAddressService {
+	private static final Logger logger = LoggerFactory.getLogger(AddressServiceImpl.class);
 	@Autowired
 	private SubwayRepository subwayRepository;
 	@Autowired
 	private ModelMapper modelMapper;
+	private static final String BAIDU_MAP_KEY = "GmXQwiAOqPm5DUj5SGxjmyayfzWc7KyC";
+	private static final String BAIDU_MAP_GEOCONV_API = "http://api.map.baidu.com/geocoder/v2/?";
 	@Autowired
 	private SupportAddressRepository supportAddressRepository;
 	 @Autowired
 	private SubwayStationRepository subwayStationRepository;
+	 @Autowired
+	 private ObjectMapper objectMapper;
 	/**
 	 * <p>
 	 * Title: findCityAndRegion
@@ -230,6 +248,53 @@ public class AddressServiceImpl implements IAddressService {
 		SupportAddressDTO addressDTO = modelMapper.map(supportAddress, SupportAddressDTO.class);
 		
 		return ServiceResult.of(addressDTO);
+	}
+
+	@Override
+	public ServiceResult<BaiduMapLocation> getBaiduMapLocation(String city, String address) {
+		String encodeAddress;
+		String encodeCity;
+		try {
+			encodeAddress = URLEncoder.encode(address,"UTF-8");
+			encodeCity=URLEncoder.encode(city, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("Error to encode house address",e);
+			return new ServiceResult<BaiduMapLocation>(
+					false,"Error to encode house address");
+		}
+		HttpClient httpClient=HttpClients.createDefault();
+		StringBuilder sb = new StringBuilder(BAIDU_MAP_GEOCONV_API);
+		sb.append("address=").append(encodeAddress)
+		.append("&").append("city=").append(encodeCity)
+		.append("&").append("output=json&").append("ak=")
+		.append(BAIDU_MAP_KEY);
+		HttpGet get=new HttpGet(sb.toString());
+		
+		try {
+			HttpResponse response = httpClient.execute(get);
+			if(response.getStatusLine().getStatusCode()!=HttpStatus.SC_OK){
+				return new ServiceResult<BaiduMapLocation>(
+						false,"Can not get baidu map location");
+			}
+			String result = EntityUtils.toString(response.getEntity(),"UTF-8");
+			JsonNode jsonNode = objectMapper.readTree(result);
+			int status =jsonNode.get("status").asInt();
+			if(status!=0){
+				return new ServiceResult<>(false,
+						"Error to get map location for status:"+status);
+			}else{
+				BaiduMapLocation location = new BaiduMapLocation();
+				JsonNode jsonLocation = jsonNode.get("result").get("location");
+				
+				location.setLongitude(jsonLocation.get("lng").asDouble());
+				location.setLatitude(jsonLocation.get("lat").asDouble());
+				return ServiceResult.of(location);
+			}
+			
+		} catch (Exception e) {
+			logger.error("Error to fetch baidumap api",e);
+			return new ServiceResult<BaiduMapLocation>(false, "Error to fetch baidumap api");
+		}
 	}
 
 }

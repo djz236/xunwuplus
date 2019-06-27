@@ -70,6 +70,7 @@ import com.imooc.web.dto.HouseDetailDTO;
 import com.imooc.web.dto.HousePictureDTO;
 import com.imooc.web.form.DatatableSearch;
 import com.imooc.web.form.HouseForm;
+import com.imooc.web.form.MapSearch;
 import com.imooc.web.form.PhotoForm;
 import com.imooc.web.form.RentSearch;
 import com.qiniu.common.QiniuException;
@@ -611,6 +612,12 @@ public class HouseServiceImpl implements IHouseService {
             result.add(idToHouseMap.get(houseId));
         }
         return result;
+	}
+
+	@Override
+	public ServiceMultiResult<HouseDTO> wholeMapQuery(MapSearch mapSearch) {
+		searchService.mapQuery(mapSearch);
+		return null;
 	}
 	  
 

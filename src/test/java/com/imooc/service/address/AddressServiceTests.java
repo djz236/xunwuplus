@@ -29,7 +29,11 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.imooc.XunwuplusApplicationTests;
+import com.imooc.service.ServiceResult;
 import com.imooc.service.house.IAddressService;
+import com.imooc.service.search.BaiduMapLocation;
+
+import junit.framework.Assert;
 
 /**   
  * @ClassName:  AddressServiceTests   
@@ -48,6 +52,11 @@ public class AddressServiceTests extends XunwuplusApplicationTests {
 	public void testGetMapLocation(){
 		String city="北京";
 		String address ="北京市昌平区巩华家园1号楼2单元";
-		//addressService
+		ServiceResult<BaiduMapLocation> location = addressService.getBaiduMapLocation(city, address);
+		Assert.assertTrue(location.isSuccess());
+		Assert.assertTrue(location.getResult().getLongitude()>0);
+		Assert.assertTrue(location.getResult().getLatitude()>0);
+		System.out.println(location.getResult().getLatitude());
+		System.out.println(location.getResult().getLongitude());
 	}
 }
