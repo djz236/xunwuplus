@@ -102,4 +102,28 @@ public interface IAddressService {
 	ServiceResult<SupportAddressDTO> findCity(String cityEnName);
 	
 	ServiceResult<BaiduMapLocation> getBaiduMapLocation(String city,String address); 
+	
+	/**   
+	 * 上传百度LBS数据
+	 * @Title: lbsUpload   
+	 * @Description: TODO(这里用一句话描述这个方法的作用)   
+	 * @param:       
+	 * @return: void      
+	 * @throws   
+	 */
+	ServiceResult lbsUpload(BaiduMapLocation location,
+			String title,String address,int houseId,int price,int area);
+	
+	/**   
+	 * 移除百度LBS 数据
+	 * @Title: remove   
+	 * @Description: TODO(这里用一句话描述这个方法的作用)   
+	 * @param: @param houseId
+	 * @param: @return      
+	 * @return: ServiceResult      
+	 * @throws   
+	 */
+	ServiceResult removeLbs (int houseId);
+	
+	 ServiceResult updateLbs(int houseId);
 }

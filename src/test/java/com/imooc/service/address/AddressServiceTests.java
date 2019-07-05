@@ -59,4 +59,15 @@ public class AddressServiceTests extends XunwuplusApplicationTests {
 		System.out.println(location.getResult().getLatitude());
 		System.out.println(location.getResult().getLongitude());
 	}
+	@Test
+	public void testUpdateLbs(){
+		String city="北京";
+		String address ="北京市昌平区巩华家园1号楼2单元";
+		ServiceResult<BaiduMapLocation> location = addressService.updateLbs(50);
+		/*Assert.assertTrue(location.isSuccess());
+		Assert.assertTrue(location.getResult().getLongitude()>0);
+		Assert.assertTrue(location.getResult().getLatitude()>0);
+		System.out.println(location.getResult().getLatitude());
+		System.out.println(location.getResult().getLongitude());*/
+	}
 }

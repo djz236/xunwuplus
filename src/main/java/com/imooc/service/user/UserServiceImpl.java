@@ -26,7 +26,10 @@
 package com.imooc.service.user;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import javax.transaction.Transactional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +38,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.Lists;
 import com.imooc.entity.Role;
 import com.imooc.entity.User;
 import com.imooc.repository.RoleRepository;
@@ -101,6 +105,56 @@ public class UserServiceImpl implements IUserService {
 	        }
 	        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
 	        return ServiceResult.of(userDTO);
+	}
+	/**   
+	 * <p>Title: findUserByTelephone</p>   
+	 * <p>Description: </p>   
+	 * @param telephone
+	 * @return   
+	 * @see com.imooc.service.IUserService#findUserByTelephone(java.lang.String)   
+	 */
+	@Override
+	public User findUserByTelephone(String telephone) {
+		User user = userRepository.findUserByPhoneNumber(telephone);
+		if(user == null){
+			return null;
+		}
+		 
+		List<Role> roles = roleRepository.findRolesByUserId(user.getId());
+		if(roles==null || roles.isEmpty()){
+			throw new DisabledException("权限非法");
+		}
+		
+		List<GrantedAuthority> anthorities=new ArrayList<>();
+		roles.forEach(role->anthorities.add(new SimpleGrantedAuthority("ROLE_"+role.getName())));
+		user.setAuthorityList(anthorities);
+		return user;
+		
+	}
+	/**   
+	 * <p>Title: addUserByPhone</p>   
+	 * <p>Description: </p>   
+	 * @param telephone
+	 * @return   
+	 * @see com.imooc.service.IUserService#addUserByPhone(java.lang.String)   
+	 */
+	@Override
+	@Transactional
+	public User addUserByPhone(String telephone) {
+		User user=new User();
+		user.setPhoneNumber(telephone);
+		user.setName(telephone.substring(0, 3)+"****"+telephone.substring(7, telephone.length()));
+		Date now=new Date();
+		user.setLastLoginTime(now);
+		user.setCreateTime(now);
+		user.setLastUpdateTime(now);
+		user = userRepository.save(user);
+		Role role = new Role();
+		role.setName("USER");
+		role.setUserId(user.getId());
+		roleRepository.save(role);
+		user.setAuthorityList(Lists.newArrayList(new SimpleGrantedAuthority("ROLE_USER")));
+		return user;
 	}
 
 }

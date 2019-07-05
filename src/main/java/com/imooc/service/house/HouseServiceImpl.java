@@ -616,8 +616,35 @@ public class HouseServiceImpl implements IHouseService {
 
 	@Override
 	public ServiceMultiResult<HouseDTO> wholeMapQuery(MapSearch mapSearch) {
-		searchService.mapQuery(mapSearch);
-		return null;
+		ServiceMultiResult<Integer> serviceMultiResult = searchService.mapQuery(mapSearch.getCityEnName(),
+				mapSearch.getOrderBy(),mapSearch.getOrderDirection(),
+				mapSearch.getStart(),mapSearch.getSize());
+		if(serviceMultiResult.getTotal()==0){
+			return new ServiceMultiResult<>(0, new ArrayList<>());
+		}
+		List<HouseDTO> houses = wrapperHouseResult(serviceMultiResult.getResult());
+		
+		return new ServiceMultiResult<>(serviceMultiResult.getTotal(),houses);
+	}
+
+	/**   
+	 * <p>Title: boundMapQuery</p>   
+	 * <p>Description: </p>   
+	 * @param mapSearch
+	 * @return   
+	 * @see com.imooc.service.house.IHouseService#boundMapQuery(com.imooc.web.form.MapSearch)   
+	 */
+	@Override
+	public ServiceMultiResult<HouseDTO> boundMapQuery(MapSearch mapSearch) {
+		ServiceMultiResult<Integer> result = searchService.mapQuery(mapSearch);
+		if(result.getTotal()==0){
+			return new ServiceMultiResult<>(0, new ArrayList<>());
+		}
+		
+		List<HouseDTO> houses = wrapperHouseResult(result.getResult());
+		
+		
+		return new ServiceMultiResult<>(result.getTotal(), houses);
 	}
 	  
 

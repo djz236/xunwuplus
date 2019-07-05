@@ -59,13 +59,13 @@ public interface ISearchService {
      * 城市级别查询
      * @return
      */
-    ServiceMultiResult<Long> mapQuery(String cityEnName, String orderBy,
+    ServiceMultiResult<Integer> mapQuery(String cityEnName, String orderBy,
                                       String orderDirection, int start, int size);
     /**
      * 精确范围数据查询
      * @param mapSearch
      * @return
      */
-    ServiceMultiResult<Long> mapQuery(MapSearch mapSearch);
+    ServiceMultiResult<Integer> mapQuery(MapSearch mapSearch);
     
 }

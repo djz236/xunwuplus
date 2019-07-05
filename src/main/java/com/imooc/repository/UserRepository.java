@@ -42,4 +42,13 @@ import com.imooc.entity.User;
 public interface UserRepository  extends CrudRepository<User,Integer> {
 
 	User findByName(String userName);
+
+	/**   
+	 * @Title: findUserByPhoneNumber   
+	 * @Description: TODO(这里用一句话描述这个方法的作用)   
+	 * @param: @param telephone      
+	 * @return: void      
+	 * @throws   
+	 */
+	User findUserByPhoneNumber(String telephone);
 }

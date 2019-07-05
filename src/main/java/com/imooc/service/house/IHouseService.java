@@ -126,5 +126,15 @@ public interface IHouseService {
      * @return
      */
     ServiceMultiResult<HouseDTO> wholeMapQuery(MapSearch mapSearch);
+
+	/**  
+	 * 精确范围数据查询
+	 * @Title: boundMapQuery   
+	 * @Description: TODO(这里用一句话描述这个方法的作用)   
+	 * @param: @param mapSearch      
+	 * @return: void      
+	 * @throws   
+	 */
+	ServiceMultiResult<HouseDTO> boundMapQuery(MapSearch mapSearch);
     
 }

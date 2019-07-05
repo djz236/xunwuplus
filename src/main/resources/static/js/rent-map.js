@@ -11,9 +11,9 @@ var regionCountMap = {}, // 地区数据
 
 function load(city, regions, aggData) {
     // 百度地图API功能
-    var map = new BMap.Map("allmap", {minZoom: 12}); // 创建实例。设置地图显示最大级别为城市
+    var map = new BMap.Map("allmap", {minZoom: 10}); // 创建实例。设置地图显示最大级别为城市
     var point = new BMap.Point(city.baiduMapLongitude, city.baiduMapLatitude); // 城市中心
-    map.centerAndZoom(point, 12); // 初始化地图，设置中心点坐标及地图级别
+    map.centerAndZoom(point, 10); // 初始化地图，设置中心点坐标及地图级别
 
     map.addControl(new BMap.NavigationControl({enableGeolocation: true})); // 添加比例尺控件
     map.addControl(new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT})); // 左上角
@@ -141,7 +141,7 @@ function drawRegion(map, regionList) {
 
     if (!customLayer) {
         customLayer = new BMap.CustomLayer({
-            geotableId: 175730,
+            geotableId:203376,// 203376,
             q: '', // 检索关键字
             tags: '', // 空格分隔的字符串
             filter: '', // 过滤条件，参考：http://lbsyun.baidu.com/index.php?title=lbscloud/api/geosearch
@@ -211,7 +211,7 @@ function mapResize(_map) {
         rightLatitude: southWest.lat
     };
 
-    if (zoomLevel < 13) {
+    if (zoomLevel < 13) {//缩放级别在13以下
         for (var i = 0; i < labels.length; i++) {
             labels[i].show();
         }
@@ -275,17 +275,34 @@ function loadHouseData() {
                                 for (var i = 0; i < house.tags.length; i++) {
                                     tags += '<span class="item-tag-color_2 item-extra">' + house.tags[i] + '</span>';
                                 }
-                                var li = '<li class="list-item"><a href="/rent/house/show/' + house.id + '" target="_blank"'
-                                    + ' title="' + house.title + '"data-community="1111027382235"> <div class="item-aside">'
-                                    + '<img src="' + house.cover + '?imageView2/1/w/116/h/116"><div class="item-btm">'
-                                    + '<span class="item-img-icon"><i class="i-icon-arrow"></i><i class="i-icon-dot"></i>'
-                                    + '</span>&nbsp;&nbsp;</div></div><div class="item-main"><p class="item-tle">'
-                                    + house.title + '</p><p class="item-des"> <span>' + house.room + '室' + house.parlour + '厅'
-                                    + '</span><span>' + house.area + '平米</span> <span>' + direction + '</span>'
-                                    + '<span class="item-side">' + house.price + '<span>元/月</span></span></p>'
-                                    + '<p class="item-community"><span class="item-replace-com">' + house.district + '</span>'
-                                    + '<span class="item-exact-com">' + house.district + '</span></p><p class="item-tag-wrap">'
-                                    + tags + '</p></div></a></li>';
+                                var li = '<li class="list-item">'
+                                	+ '<a href="/rent/house/show/' + house.id + '" target="_blank" title="' + house.title + '"data-community="1111027382235"> '
+                                	+ '<div class="item-aside">'
+                                    + '<img src="' + house.cover + '?imageView2/1/w/116/h/116">'
+                                    + '<div class="item-btm">'
+                                    + '<span class="item-img-icon">'
+                                    + '<i class="i-icon-arrow"></i><i class="i-icon-dot"></i>'
+                                    + '</span>&nbsp;&nbsp;'
+                                    + '</div>'
+                                    + '</div>' 
+                                    + '<div class="item-main">'
+                                    + '<p class="item-tle">'+ house.title + '</p>'
+                                    + '<p class="item-des">'
+                                    + '<span>' + house.room + '室' + house.parlour + '厅'+ '</span>'
+                                    + '<span>' + house.area + '平米</span>'
+                                    + '<span>' + direction + '</span>'
+                                    + '<span class="item-side">' + house.price 
+                                    + '<span>元/月</span>'
+                                    + '</span>'
+                                    + '</p>'
+                                    + '<p class="item-community">'
+                                    + '<span class="item-replace-com">' + house.district + '</span>'
+                                    + '<span class="item-exact-com">' + house.district + '</span>'
+                                    + '</p>'
+                                    + '<p class="item-tag-wrap">'+ tags + '</p>'
+                                    + '</div>'
+                                    + '</a>'
+                                    +'</li>';
 
                                 lis.push(li);
                             });

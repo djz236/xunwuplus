@@ -25,41 +25,44 @@
  *********************************************************/
 package com.imooc.service;
 
-import com.imooc.entity.User;
-import com.imooc.web.dto.UserDTO;
-
-/**
- * @ClassName: IUserService
- * @Description:用户服务
- * @author: 公司名称
- * @date: 2019年4月26日 下午10:10:11
- * 
- * @Copyright: 2019 www.xxx.com Inc. All rights reserved.
- *             注意：本内容仅限于公司内部传阅，禁止外泄以及用于其他的商业目
+/**   
+ * @ClassName:  ISmsService   
+ * @Description:验证码服务  
+ * @author: 公司名称 
+ * @date:   2019年7月1日 下午8:40:53   
+ *     
+ * @Copyright: 2019 www.xxx.com Inc. All rights reserved. 
+ * 注意：本内容仅限于公司内部传阅，禁止外泄以及用于其他的商业目 
  */
-public interface IUserService {
+public interface ISmsService {
 
-	User findUserByName(String userName);
-
-	ServiceResult<UserDTO> findById(Integer userId);
-
-	/**   
-	 * @Title: findUserByTelephone   
-	 * @Description: 根据电话号码寻找用户   
-	 * @param: @param telephone
-	 * @param: @return      
-	 * @return: User      
-	 * @throws   
-	 */
-	User findUserByTelephone(String telephone);
+	
 	
 	/**   
-	 * @Title: addUserByPhone   
-	 * @Description: 通过手机号注册用户   
-	 * @param: @param telephone
+	 * @Title: sendSms   
+	 * @Description: 发送验证码到制定手机 并 缓存验证码 10分钟 及 请求建个时间一分钟   
+	 * @param: @param telephone 手机号码
 	 * @param: @return      
-	 * @return: User      
+	 * @return: ServiceResult<String>      
 	 * @throws   
 	 */
-	User addUserByPhone(String telephone);
+	ServiceResult<String> sendSms(String telephone);
+	/**   
+	 * @Title: getSmsCode   
+	 * @Description: 获取缓存中的验证码 
+	 * @param: @param telephone 手机号码
+	 * @param: @return      
+	 * @return: String      
+	 * @throws   
+	 */
+	String getSmsCode(String telephone);
+	
+	/**   
+	 * @Title: remove   
+	 * @Description:  移除制定手机号的验证码缓存  
+	 * @param: @param telephone   手机号码
+	 * @return: void      
+	 * @throws   
+	 */
+	void remove(String telephone);
 }
